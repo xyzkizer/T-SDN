@@ -1,6 +1,6 @@
 development:
   adapter: mysql2
-  database: tsdn
-  username: dpi
-  password: dpi
-  host: 132.122.237.248
+  database: SDTN
+  username: sdtn
+  password: sdtn
+  host: 127.0.0.1

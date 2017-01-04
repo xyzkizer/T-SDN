@@ -1,0 +1,42 @@
+<md-content laout="column" flex ng-controller="LinkCtrl">
+    <md-card>
+        <md-toolbar class="md-table-toolbar md-default" ng-hide="selected.length">
+            <div class="md-toolbar-tools">
+                <span>Links</span>
+                <div flex></div>
+                <md-button class="md-icon-button" ng-click="loadStuff()">
+                    <md-icon md-svg-src="assets/ic_refresh_black.svg">refresh</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-table-container>
+            <table md-table md-row-select="options.rowSelection" multiple="{{options.multiSelect}}" ng-model="selected" md-progress="promise">
+                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="">
+                <tr md-row>
+                    <th md-column md-order-by="uuid"><span>UUID</span></th>
+                    <th md-column md-order-by="name[0].value"><span>名称</span></th>
+                    <th md-column md-numeric md-order-by="_statePac.operationalState"><span>状态</span></th>
+                    <th md-column md-numeric md-order-by="linkDirection"><span>方向</span></th>
+                    <th md-column md-numeric md-order-by="layerProtocolName"><span>协议</span></th>
+                </tr>
+                </thead>
+                <tbody md-body>
+                <tr md-row md-on-select="logItem" md-auto-select="options.autoSelect"
+                    ng-repeat="link in links.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                    <td md-cell>{{link.uuid}}</td>
+                    <td md-cell>{{link.name[0].value}}</td>
+                    <td md-cell>{{link._statePac.operationalState}}</td>
+                    <td md-cell>{{link.linkDirection}}</td>
+                    <td md-cell>{{link.layerProtocolName}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+
+        <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page"
+                             md-total="{{links.count}}" md-page-select="options.pageSelect"
+                             md-boundary-links="options.boundaryLinks"
+                             md-on-paginate="logPagination"></md-table-pagination>
+    </md-card>
+</md-content>

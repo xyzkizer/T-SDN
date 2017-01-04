@@ -1,10 +1,11 @@
 require 'bundler/setup'
 require 'pry'
+require 'racksh/irb'
 require './app'
 
 task :console do
   #binding.pry
-  racksh
+  #racksh 
 end
 
 # Asset pipeline (Sprockets)

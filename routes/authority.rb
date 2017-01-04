@@ -1,4 +1,4 @@
-class AuthorityController < Application
+class AuthorityController < SDN
 
   get '/authority' do
     flash_debug "GET authority"

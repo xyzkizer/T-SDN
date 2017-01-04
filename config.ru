@@ -1,16 +1,30 @@
 #require ::File.expand_path('', __FILE__)
+require 'data_mapper'
 
 require File.dirname(__FILE__) + '/app.rb'
-%w(models routes).each do |name|
-  Dir[File.join(name, '**/*.rb')].each do |file|
-    require_relative file
-  end
+Dir[File.join('routes', '**/*.rb')].each do |file|
+  require_relative file
 end
+
+DataMapper.finalize
 
 map "/" do
   run RootController
 end
 
-map "/assets" do
- run Application.sprockets
+map "/links" do
+  run LinkController
 end
+
+map "/seps" do
+  run ServiceEndPointController
+end
+
+map "/services" do
+  run ServiceController
+end
+
+map "/assets" do
+ run SDN.sprockets
+end
+
