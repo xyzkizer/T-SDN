@@ -1,5 +1,42 @@
-<md-content laout="column" flex ng-controller="SEPCtrl">
-  <treecontrol class="tree-classic" tree-model="dataForTheTree" options="treeOptions" on-selection="showSelected(node)">
-     {{node.name}} 
-  </treecontrol>
-</md-content>
+<div layout="row">
+  <div style="padding-left: 1em; padding-top: 1em;" flex="60">
+    <span class="underline">Topologies</span>
+    <ul class="tree">
+      <li ng-repeat="data in tree" ng-include="'partials/tree-item.tmpl.html'"></li>
+    </ul>
+  </div>
+  <div flex>
+  <md-content layout-padding>
+    <div style="padding-right: 1em;" >
+      <form name="userForm" ng-show="sep">
+       <div layout-gt-xs="row">
+          <md-input-container class="md-block" flex-gt-xs>
+            <label>UUID</label>
+            <input ng-model="sep.uuid" disabled>
+          </md-input-container>
+        </div>
+       <div layout-gt-xs="row">
+          <md-input-container class="md-block" flex-gt-xs>
+            <label>NAME</label>
+            <input ng-model="sep.name[0].value" disabled>
+          </md-input-container>
+        </div>
+       <div layout-gt-xs="row">
+          <md-input-container class="md-block" flex-gt-xs>
+            <label>STATE</label>
+            <input ng-model="sep._statePac.operationalState" disabled>
+          </md-input-container>
+        </div>
+        <div>
+          <md-button class="md-raised md-primary" style="width: 100%;" ng-click="connect(sep)" flex>创建业务</md-button>
+        </div>
+      </form>
+    </div>
+  </md-content>
+
+  </div>
+</div>
+
+
+
+

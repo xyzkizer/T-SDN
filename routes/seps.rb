@@ -1,8 +1,9 @@
 class ServiceEndPointController < SDN
 
-  get '/' do
+  get '/?' do
     content_type :json
 
+    respond = {}
     top = []
 
     JSON.parse($redis.get(%Q(#{$redis.get("root-topolopy")}.serviceEndPoint))).each do |sep|
@@ -13,21 +14,43 @@ class ServiceEndPointController < SDN
       top << [typo, node, type, name]
     end
 
-    @topos = JSON.parse("[]")
+    names = top.map {|t| t[3]}
+
+    # to be shortcut,
+    topos = JSON.parse("[]")
     top.each do |t|
-      topo = @topos.detect {|e| e['name'] == t[0] }
-      @topos << {"name" => t[0], "children" => []} unless topo
 
-      node = @topos.last['children'].detect {|e| e['name'] == t[1]}
-      @topos.last['children'] << {"name"=>t[1], "children"=>[]} unless node
+      topo = topos.detect {|e| e["name"] == t[0] }
+      unless topo
+        topo = {"name" => t[0], "nodes" => []}
+        topos << topo
+      end
 
-      type = @topos.last['children'].last['children'].detect {|e| e['name'] == t[2]}
-      @topos.last['children'].last['children'] << {"name"=>t[2], "children"=>["name"=>t[3]]} unless type
+      node = topo["nodes"].detect {|e| e["name"] == t[1]}
+      unless node
+        node = {"name" => t[1], "nodes" => []}
+        topo["nodes"] << node
+      end
 
-      name = @topos.last['children'].last['children'].last['children'].detect {|e| e['name'] == t[3]}
-      @topos.last['children'].last['children'].last['children'] << {"name"=>t[3]} unless name
+      type = node["nodes"].detect {|e| e["name"] == t[2]}
+      unless type
+        type = {"name" => t[2], "nodes" => [{"name"=>t[3], "endpoint"=>true}]}
+        node["nodes"] << type
+      end
+
+      name = type["nodes"].detect {|e| e["name"] == t[3]}
+      unless name
+        name = {"name" => t[3], "endpoint"=>true}
+        type["nodes"] << name
+      end
     end
 
-    @topos.to_json
+    respond['topos'] = topos
+    respond['seps'] = names
+    respond.to_json
+  end
+
+  get %r{/(?<name>.+)/?} do
+    $redis.get(%Q(#{params[:name]}-name))
   end
 end

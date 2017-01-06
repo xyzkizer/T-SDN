@@ -1,0 +1,34 @@
+<!doctype html>
+<html ng-app="DEBUG" ng-controller="treeCtrl" lang="en" ng-strict-di >
+<head>
+  <base href="/">
+
+  <link href="assets/tree-control.css" type="text/css">
+  <link href="assets/bootstrap.3.1.1.css" rel="stylesheet" type="text/css">
+  <link href="assets/prettify-style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="docs-body" layout="row" ng-cloak>
+<treecontrol class="tree-classic"
+   tree-model="dataForTheTree"
+   options="treeOptions"
+   on-selection="showSelected(node)"
+   selected-node="">
+   {{node.name}}
+</treecontrol>
+
+
+<!-- <script src="assets/angular.js"></script> -->
+
+<script src="assets/jquery-2.2.2.js"></script>
+<script src="assets/angular.1.2.29.js"></script>
+<script src="assets/angular-tree-control.js"></script>
+<script src="assets/bootstrap.3.1.1.js"></script>
+<script src="assets/ui-bootstrap-tpls.0.11.2.js"></script>
+<script src="assets/prettify.1.0.1.js"></script>
+
+<script src="assets/debug.js"></script>
+
+</body>
+</html>

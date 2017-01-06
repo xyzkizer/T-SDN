@@ -1,4 +1,4 @@
-angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'treeControl'], [
+angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker'], [
   '$routeProvider', '$locationProvider', '$mdThemingProvider', '$mdIconProvider',
   function($routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider){
 
@@ -68,6 +68,10 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
     $locationProvider.hashPrefix('!');
 
+}])
+.config(['$mdThemingProvider', 'pickerProvider', function($mdThemingProvider, pickerProvider) {
+  pickerProvider.setOkLabel('确定');
+  pickerProvider.setCancelLabel('关闭');
 }])
 .factory('menu', ['$location', '$rootScope', '$http', '$window', function($location, $rootScope, $http, $window){
 
@@ -190,6 +194,17 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
   }
 
 }])
+.directive('validate', function () {
+    return {
+        restrict: 'A',
+        require: 'ngModel', // require:  '^form',
+
+        link: function (scope, element, attrs, ctrl) {
+            console.log(scope.sform.$error);
+
+        }
+    };
+})
 .directive('menuLink', function() {
   return {
     scope: {
@@ -314,30 +329,97 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
 
 }])
-.controller('SEPCtrl', ['$scope', '$http', function($scope, $http) {
-  $scope.lastClicked = null;
-  $scope.buttonClick = function($event, node) {
-    $scope.lastClicked = node;
-    $event.stopPropagation();
-  }
-  $scope.showSelected = function(sel) {
-    $scope.selectedNode = sel;
+.controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', function($scope, $rootScope, $http, $mdDialog) {
+  $scope.delete = function(data) {
+    data.nodes = [];
   };
 
-  $scope.treeOptions = {
-    nodeChildren: "children",
-    dirSelectable: true
+  $scope.add = function(data) {
+    var post = data.nodes.length + 1;
+    var newName = data.name + '-' + post;
+    data.nodes.push({name: newName, expanded:true, nodes: []});
   };
+
+  $scope.toggle = function(data) {
+    data.expanded = !data.expanded;
+  };
+
+  $scope.connect = function(ev){
+    $mdDialog.show({
+      controller: DialogCtrl,
+      controllerAs: 'ctrl',
+      templateUrl: 'partials/sep-connect.tmpl.html',
+      parent: angular.element(document.body),
+      targetEvent: ev,
+      clickOutsideToClose:true,
+    })
+    .then(function(answer) {
+      $scope.status = 'You said the information was "' + answer + '".';
+    }, function() {
+      $scope.status = 'You cancelled the dialog.';
+    });
+
+  };
+
+  $scope.showDetail = function(data) {
+    $scope.promise = $http.get('/seps/'+data.name)
+    .then(
+      function(answer) {
+        $scope.sep = answer.data;
+      },
+      function(error) {
+      },
+      function(progress) {
+      }
+    );
+  };
+
   $scope.promise = $http.get('/seps')
   .then(
     function(answer) {
-      $scope.dataForTheTree = answer.data;
+      $scope.tree = answer.data.topos;
+      $rootScope.seps = answer.data.seps;
     },
     function(error) {
     },
     function(progress) {
     }
   );
+
+  DialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog'];
+  function DialogCtrl($scope, $rootScope, $mdDialog) {
+
+    var self = this;
+    self.seps = $rootScope.seps.map(function(sep){
+      return {
+          value: sep.toLowerCase(),
+          display: sep
+      };
+    });
+    $rootScope.task = {from:"", to:"", rate:0, bandwidth:0, startAt:""};
+
+    self.cancel = function() {
+      $mdDialog.cancel();
+    };
+
+    self.submit = function(answer) {
+      console.log("submit");
+      $mdDialog.hide(answer);
+    };
+
+    self.querySearch = function querySearch (query) {
+      return query?self.seps.filter( createFilterFor(query) ) : self.seps;
+    };
+
+    function createFilterFor(query) {
+      var lowercaseQuery = angular.lowercase(query);
+
+      return function filterFn(sep) {
+        return (sep.value.indexOf(lowercaseQuery) !== -1);
+      };
+    };
+
+  };
 
 }])
 .controller('LinkCtrl', ['$scope', '$http', function($scope, $http) {
@@ -363,13 +445,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     );
   };
   $scope.loadStuff();
-
-
-  // $scope.getlinks = function () {
-  //   $scope.promise = $nutrition.desserts.get($scope.query, success).$promise;
-  // };
-
-
 }])
 .controller('ManagerCtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
 

@@ -1,0 +1,5 @@
+<button style="background: none; border: none;" ng-click="toggle(data)" ng-show="!data.endpoint">{{data.name}}</button>
+<button style="background: none; border: none;" ng-click="showDetail(data)" ng-show="data.endpoint">{{data.name}}</button>
+<ul ng-show="data.expanded">
+  <li ng-repeat="data in data.nodes" ng-include="'partials/tree-item.tmpl.html'">
+</ul>

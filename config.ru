@@ -24,6 +24,10 @@ map "/services" do
   run ServiceController
 end
 
+map "/debug" do
+  run DebugController
+end
+
 map "/assets" do
  run SDN.sprockets
 end
