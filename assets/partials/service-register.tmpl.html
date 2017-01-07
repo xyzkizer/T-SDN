@@ -1,0 +1,97 @@
+<md-dialog flex="60" aria-label="Create Register">
+  <form name="rform" novalidate ng-submit="ctrl.submit(rform)" role="form" ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>预约业务</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="ctrl.cancel()">
+          <md-icon md-svg-src="assets/ic_close_white_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-progress-linear md-mode="indeterminate" ng-show="progress.active()"></md-progress-linear>
+
+    <md-dialog-content>
+      <div class="md-dialog-content" flex>
+
+        <div style="padding-right: 1em;">
+          <p>输入预约业务数据，创建预约。</p>
+          <div layout-gt-xs="row">
+            <md-input-container class="md-block" flex>
+              <input ng-required="true"
+                     type="number"
+                     step="1250"
+                     min="0"
+                     name="bandwidth"
+                     ng-model="register.bandwidth"
+                     placeholder="带宽"/>
+            </md-input-container>
+            <md-input-container class="md-block" flex>
+              <input ng-required="true"
+                     name="rate"
+                     type="number"
+                     min="0"
+                     step="100"
+                     ng-model="register.rate"
+                     placeholder="速率"/>
+            </md-input-container>
+          </div>
+          <div layout-gt-xs="row">
+          <div layout-gt-xs="column" flex>
+            <sm-date-time-picker
+                fname="startAt"
+                label="开始时间"
+                data-ng-model="register.startAt"
+                disable-year-selection="false"
+                on-focus
+                flex
+                is-required="true"
+                format="HH:mm"
+                mode="time"
+                week-start-day="Monday"
+            </sm-date-time-picker>
+          </div>
+          <div layout-gt-xs="column" flex>
+            <sm-date-time-picker
+                fname="endAt"
+                label="结束时间"
+                data-ng-model="register.endAt"
+                disable-year-selection="false"
+                on-focus
+                flex
+                is-required="true"
+                format="HH:mm"
+                mode="time"
+                week-start-day="Monday"
+            </sm-date-time-picker>
+          </div>
+          <div layout-gt-xs="column" flex>
+            <md-switch ng-model="ctrl.everyday" aria-label="everyday"> 每天执行 </md-switch>
+          </div>
+          </div>
+          <div layout-gt-xs="row" ng-show="!ctrl.everyday">
+            <sm-date-time-picker
+                fname="field"
+                label="日期"
+                data-ng-model="register.date"
+                flex="100"
+                flex-sm="100"
+                disable-year-selection="false"
+                flex-xs="100"
+                on-focus
+                ng-required="!ctrl.everyday"
+                format="YYYY-MM-DD"
+                mode="date"
+                week-start-day="Monday"
+            </sm-date-time-picker>
+          </div>
+        </div>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button type="submit" aria-label="submit" class="md-primary" ng-disabled="rform.$invalid"> 提交 </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

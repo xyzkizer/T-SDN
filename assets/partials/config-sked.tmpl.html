@@ -14,25 +14,25 @@
             <table md-table md-row-select="options.rowSelection" multiple="{{options.multiSelect}}" ng-model="selected" md-progress="promise">
                 <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="">
                 <tr md-row>
-                    <th md-column md-order-by="from"><span>SEP</span></th>
-                    <th md-column md-order-by="to"><span>SEP</span></th>
+                    <th md-column md-order-by="service"><span>业务</span></th>
                     <th md-column md-numeric md-order-by="rate"><span>速率</span></th>
                     <th md-column md-numeric md-order-by="bandwidth"><span>带宽</span></th>
+                    <th md-column md-order-by="effective_date"><span>日期</span></th>
                     <th md-column md-order-by="startAt"><span>开始</span></th>
                     <th md-column md-order-by="endAt"><span>结束</span></th>
-                    <th md-column md-numeric md-order-by="state"><span>状态</span></th>
+                    <th md-column md-numeric md-order-by="everyday"><span>每天</span></th>
                 </tr>
                 </thead>
                 <tbody md-body>
                 <tr md-row md-on-select="logItem" md-auto-select="options.autoSelect"
                     ng-repeat="register in registers.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
-                    <td md-cell>{{register.from}}</td>
-                    <td md-cell>{{register.to}}</td>
+                    <td md-cell>{{register.service}}</td>
                     <td md-cell>{{register.rate}}</td>
                     <td md-cell>{{register.bandwidth}}</td>
+                    <td md-cell>{{register.effective_date}}</td>
                     <td md-cell>{{register.startAt}}</td>
                     <td md-cell>{{register.endAt}}</td>
-                    <td md-cell>{{register.state}}</td>
+                    <td md-cell>{{register.everyday}}</td>
                 </tr>
                 </tbody>
             </table>

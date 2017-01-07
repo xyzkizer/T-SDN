@@ -1,44 +1,100 @@
-<md-content layout="column" flex ng-controller="ServiceCtrl">
-    <md-card>
-        <md-toolbar class="md-table-toolbar md-default" ng-hide="selected.length">
-            <div class="md-toolbar-tools">
-                <span>Services</span>
-                <div flex></div>
-                <md-button class="md-icon-button" ng-click="loadStuff()">
-                    <md-icon md-svg-src="assets/ic_refresh_black.svg">refresh</md-icon>
-                </md-button>
-            </div>
-        </md-toolbar>
+<md-content laout="column" flex ng-controller="ServiceCtrl">
+  <md-card>
+    <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+      <div class="md-toolbar-tools">
+        <span>Services</span>
+        <div flex></div>
+        <md-button class="md-icon-button" ng-click="loadStuff()">
+          <md-icon md-svg-src="assets/ic_refresh_black.svg">refresh</md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
 
-        <md-table-container>
-            <table md-table md-row-select="options.rowSelection" multiple="{{options.multiSelect}}" ng-model="selected" md-progress="promise">
-                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="">
-                <tr md-row>
-                    <th md-column md-order-by="uuid"><span>UUID</span></th>
-                    <th md-column md-order-by="name[0].value"><span>名称</span></th>
-                    <th md-column md-numeric md-order-by="_statePac.operationalState"><span>状态</span></th>
-                    <th md-column md-numeric md-order-by="direction"><span>方向</span></th>
-                    <th md-column md-numeric md-order-by="connConstraint.requestedCapacity.totalSize"><span>带宽</span></th>
-                    <th md-column md-numeric md-order-by="layerProtocolName"><span>协议</span></th>
-                </tr>
-                </thead>
-                <tbody md-body>
-                <tr md-row md-on-select="logItem" md-auto-select="options.autoSelect"
-                    ng-repeat="service in services.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
-                    <td md-cell>{{service.uuid}}</td>
-                    <td md-cell>{{service.name[0].value}}</td>
-                    <td md-cell>{{service._statePac.operationalState}}</td>
-                    <td md-cell>{{service.direction}}</td>
-                    <td md-cell>{{service.connConstraint.requestedCapacity.totalSize}}</td>
-                    <td md-cell>{{service.layerProtocolName}}</td>
-                </tr>
-                </tbody>
-            </table>
-        </md-table-container>
-
-        <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page"
-                             md-total="{{links.count}}" md-page-select="options.pageSelect"
-                             md-boundary-links="options.boundaryLinks"
-                             md-on-paginate="logPagination"></md-table-pagination>
-    </md-card>
+    <md-toolbar class="md-table-toolbar alternate" ng-show="options.rowSelection && selected.length">
+      <div class="md-toolbar-tools">
+        <span>{{selected.length}} {{selected.length > 1 ? 'items' : 'item'}} selected</span>
+        <div flex></div>
+        <md-button ng-disabled="selected.length > 1" class="md-icon-button" ng-click="showRegisterDialog()">
+          <md-icon md-svg-src="assets/ic_access_time_white_24px.svg">register</md-icon>
+        </md-button>
+        <md-button ng-disabled="selected.length > 1" class="md-icon-button" ng-click="loadStuff()">
+          <md-icon md-svg-src="assets/ic_edit_white_24px.svg">edit</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="loadStuff()">
+          <md-icon md-svg-src="assets/ic_delete_forever_white_24px.svg">delete</md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-table-container>
+      <table md-table md-row-select="options.rowSelection" multiple="{{options.multiSelect}}" ng-model="selected" md-progress="promise">
+        <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+          <tr md-row>
+            <th md-column md-order-by="uuid"><span>UUID</span></th>
+            <th md-column md-order-by="name[0].value"><span>名称</span></th>
+            <th md-column md-numeric md-order-by="_statePac.operationalState"><span>状态</span></th>
+            <th md-column md-numeric md-order-by="direction"><span>方向</span></th>
+            <th md-column md-numeric md-order-by="connConstraint.requestedCapacity.totalSize"><span>带宽</span></th>
+            <th md-column md-numeric md-order-by="layerProtocolName"><span>协议</span></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row md-select="service" md-on-select="logItem" md-auto-select="options.autoSelect" ng-repeat="service in services.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+            <td md-cell>{{service.uuid}}</td> 
+            <td md-cell>{{service.name[0].value}}</td>
+            <td md-cell>{{service._statePac.operationalState}}</td>
+            <td md-cell>{{service.direction}}</td>
+            <td md-cell>{{service.connConstraint.requestedCapacity.totalSize}}</td>
+            <td md-cell>{{service.layerProtocolName}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{services.count}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+  </md-card>
 </md-content>
+
+<!-- <md-content layout="column" flex ng-controller="ServiceCtrl"> -->
+<!--     <md-card> -->
+<!--         <md-toolbar class="md-table-toolbar md-default" ng-hide="selected.length"> -->
+<!--             <div class="md-toolbar-tools"> -->
+<!--                 <span>Services</span> -->
+<!--                 <div flex></div> -->
+<!--                 <md-button class="md-icon-button" ng-click="loadStuff()"> -->
+<!--                     <md-icon md-svg-src="assets/ic_refresh_black.svg">refresh</md-icon> -->
+<!--                 </md-button> -->
+<!--             </div> -->
+<!--         </md-toolbar> -->
+
+<!--         <md-table-container> -->
+<!--             <table md-table md-row-select multiple ng-model="selected" md-progress="promise"> -->
+<!--                 <thead md-head md-order="query.order" md-on-reorder=""> -->
+<!--                 <tr md-row> -->
+<!--                     <th md-column md-order-by="uuid"><span>UUID</span></th> -->
+<!--                     <th md-column md-order-by="name[0].value"><span>名称</span></th> -->
+<!--                     <th md-column md-numeric md-order-by="_statePac.operationalState"><span>状态</span></th> -->
+<!--                     <th md-column md-numeric md-order-by="direction"><span>方向</span></th> -->
+<!--                     <th md-column md-numeric md-order-by="connConstraint.requestedCapacity.totalSize"><span>带宽</span></th> -->
+<!--                     <th md-column md-numeric md-order-by="layerProtocolName"><span>协议</span></th> -->
+<!--                 </tr> -->
+
+<!--                 </thead> -->
+<!--                 <tbody md-body> -->
+<!--                 <tr md-row md-on-select="" md-auto-select -->
+<!--                     ng-repeat="service in services.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit"> -->
+<!--                     <td md-cell>{{service.uuid}}</td> -->
+<!--                     <td md-cell>{{service.name[0].value}}</td> -->
+<!--                     <td md-cell>{{service._statePac.operationalState}}</td> -->
+<!--                     <td md-cell>{{service.direction}}</td> -->
+<!--                     <td md-cell>{{service.connConstraint.requestedCapacity.totalSize}}</td> -->
+<!--                     <td md-cell>{{service.layerProtocolName}}</td> -->
+<!--                 </tr> -->
+<!--                 </tbody> -->
+<!--             </table> -->
+<!--         </md-table-container> -->
+
+<!--         <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" -->
+<!--                              md-total="{{links.count}}" md-page-select="options.pageSelect" -->
+<!--                              md-boundary-links="options.boundaryLinks" -->
+<!--                              md-on-paginate=""></md-table-pagination> -->
+<!--     </md-card> -->
+<!-- </md-content> -->

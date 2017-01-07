@@ -6,7 +6,7 @@ class ServiceEndPointController < SDN
     respond = {}
     top = []
 
-    JSON.parse($redis.get(%Q(#{$redis.get("root-topolopy")}.serviceEndPoint))).each do |sep|
+    JSON.parse($redis.get(%Q(#{$redis.get("root-topology")}.serviceEndPoint))).each do |sep|
       name = sep["name"][0]["value"]
       typo, node, type = name.split('_').map { |pair|
         pair.partition('/').first
@@ -51,6 +51,6 @@ class ServiceEndPointController < SDN
   end
 
   get %r{/(?<name>.+)/?} do
-    $redis.get(%Q(#{params[:name]}-name))
+    $redis.get(%Q(#{params[:name]}))
   end
 end

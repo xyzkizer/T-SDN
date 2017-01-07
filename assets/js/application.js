@@ -69,9 +69,10 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     $locationProvider.hashPrefix('!');
 
 }])
-.config(['$mdThemingProvider', 'pickerProvider', function($mdThemingProvider, pickerProvider) {
+.config(['$mdThemingProvider', 'pickerProvider', function($mdThemingProvider, pickerProvider, picker) {
   pickerProvider.setOkLabel('确定');
   pickerProvider.setCancelLabel('关闭');
+
 }])
 .factory('menu', ['$location', '$rootScope', '$http', '$window', function($location, $rootScope, $http, $window){
 
@@ -328,14 +329,30 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
   $scope.loadStuff();
 
 }])
-.controller('ServiceCtrl', ['$scope', '$http', function($scope, $http) {
+.controller('ServiceCtrl', ['$scope', '$http', '$mdDialog', function($scope, $http, $mdDialog) {
 
   $scope.selected = [];
 
+  $scope.limitOptions = [5, 10, 15];
+  $scope.options = {
+    rowSelection: true,
+    multiSelect: true,
+    autoSelect: true,
+    decapitate: false,
+    largeEditDialog: false,
+    boundaryLinks: false,
+    limitSelect: true,
+    pageSelect: true
+  };
   $scope.query = {
-    order: 'name',
-    limit: 5,
+    order: 'service.name[0].value',
+    limit: 10,
     page: 1
+  };
+
+  $scope.logItem = function (item) {
+    console.log(item.uuid, 'was selected');
+    console.log($scope.selected);
   };
 
   $scope.loadStuff = function () {
@@ -352,6 +369,66 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
   };
   $scope.loadStuff();
 
+  $scope.showRegisterDialog = function(ev){
+    $mdDialog.show({
+      controller: RegisterDialogCtrl,
+      controllerAs: 'ctrl',
+      templateUrl: 'partials/service-register.tmpl.html',
+      parent: angular.element(document.body),
+      targetEvent: ev,
+      clickOutsideToClose:true,
+      locals:{selectedService: $scope.selected}
+    })
+    .then(function(answer) {
+      $scope.status = 'You said the information was "' + answer + '".';
+    }, function() {
+      $scope.status = 'You cancelled the dialog.';
+    });
+  };
+
+  RegisterDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'smDateTimePicker', 'selectedService'];
+  function RegisterDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, smDateTimePicker, selectedService) {
+
+    var self = this;
+    self.everyday = true;
+
+    self.submit = function(form) {
+
+      $scope.submitted = true;
+
+      if (form.$invalid) {
+        console.log("register form invalid.");
+        return;
+      }
+      if (selectedService.length > 1) {
+        return;
+      }
+
+      $scope.register.service = selectedService[0]
+      $scope.register.everyday = self.everyday;
+
+      $promise = $http.post('/registers', $scope.register)
+        .then(
+          function(response) {
+            if (response.status == 'OK') {
+              $scope.submitted = false;
+            } else {
+
+            }
+          },
+          function(error) {
+          },
+          function(progress) {
+          })
+        .finally(function() {
+          $mdDialog.cancel();
+      });
+    };
+
+    self.cancel = function() {
+      $mdDialog.cancel();
+    };
+  };
 
 }])
 .controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', function($scope, $rootScope, $http, $mdDialog) {
@@ -414,7 +491,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
   DialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout'];
   function DialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout) {
 
-    $scope.isRegister = false;
     var self = this;
     self.seps = $rootScope.seps.map(function(sep){
       return {
@@ -422,17 +498,11 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
           display: sep
       };
     });
-    // $rootScope.task = {from:"", to:"", rate:0, bandwidth:0, startAt:""};
-
-    // $scope.progress = promiseTracker();
 
     self.submit = function(form) {
 
       $scope.submitted = true;
-      $scope.task.to = $scope.task.to.display
       $scope.task.from = $rootScope.sep.name[0].value
-      console.log($scope.task);
-
 
       if (form.$invalid) {
         return;
@@ -454,8 +524,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         .finally(function() {
           $mdDialog.cancel();
       });
-
-      // $scope.progress.addPromise($promise);
     };
 
     self.cancel = function() {
