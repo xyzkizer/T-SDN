@@ -1,4 +1,4 @@
-angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker'], [
+angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'promise-tracker'], [
   '$routeProvider', '$locationProvider', '$mdThemingProvider', '$mdIconProvider',
   function($routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider){
 
@@ -15,7 +15,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     })
     .when('/configurations/sked', {
       templateUrl: 'partials/config-sked.tmpl.html',
-      controller: 'ServiceCtrl'
+      controller: 'ServiceRegisterCtrl'
     })
     .when('/devices/seps', {
       templateUrl: 'partials/service-end-points.tmpl.html',
@@ -303,6 +303,31 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
 
 }])
+.controller('ServiceRegisterCtrl', ['$scope', '$http', function($scope, $http) {
+
+  $scope.selected = [];
+
+  $scope.query = {
+    order: 'from',
+    limit: 5,
+    page: 1
+  };
+
+  $scope.loadStuff = function () {
+    $scope.promise = $http.get('/registers')
+    .then(
+      function(answer) {
+        $scope.registers = answer.data;
+      },
+      function(error) {
+      },
+      function(progress) {
+      }
+    );
+  };
+  $scope.loadStuff();
+
+}])
 .controller('ServiceCtrl', ['$scope', '$http', function($scope, $http) {
 
   $scope.selected = [];
@@ -365,7 +390,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     $scope.promise = $http.get('/seps/'+data.name)
     .then(
       function(answer) {
-        $scope.sep = answer.data;
+        $rootScope.sep = answer.data;
       },
       function(error) {
       },
@@ -386,9 +411,10 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     }
   );
 
-  DialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog'];
-  function DialogCtrl($scope, $rootScope, $mdDialog) {
+  DialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout'];
+  function DialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout) {
 
+    $scope.isRegister = false;
     var self = this;
     self.seps = $rootScope.seps.map(function(sep){
       return {
@@ -396,15 +422,44 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
           display: sep
       };
     });
-    $rootScope.task = {from:"", to:"", rate:0, bandwidth:0, startAt:""};
+    // $rootScope.task = {from:"", to:"", rate:0, bandwidth:0, startAt:""};
+
+    // $scope.progress = promiseTracker();
+
+    self.submit = function(form) {
+
+      $scope.submitted = true;
+      $scope.task.to = $scope.task.to.display
+      $scope.task.from = $rootScope.sep.name[0].value
+      console.log($scope.task);
+
+
+      if (form.$invalid) {
+        return;
+      }
+
+      $promise = $http.post('/services', $scope.task)
+        .then(
+          function(response) {
+            if (response.status == 'OK') {
+              $scope.submitted = false;
+            } else {
+
+            }
+          },
+          function(error) {
+          },
+          function(progress) {
+          })
+        .finally(function() {
+          $mdDialog.cancel();
+      });
+
+      // $scope.progress.addPromise($promise);
+    };
 
     self.cancel = function() {
       $mdDialog.cancel();
-    };
-
-    self.submit = function(answer) {
-      console.log("submit");
-      $mdDialog.hide(answer);
     };
 
     self.querySearch = function querySearch (query) {

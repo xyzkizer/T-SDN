@@ -22,13 +22,13 @@ class ServiceEndPointController < SDN
 
       topo = topos.detect {|e| e["name"] == t[0] }
       unless topo
-        topo = {"name" => t[0], "nodes" => []}
+        topo = {"name" => t[0], "expanded"=>true, "nodes" => []}
         topos << topo
       end
 
       node = topo["nodes"].detect {|e| e["name"] == t[1]}
       unless node
-        node = {"name" => t[1], "nodes" => []}
+        node = {"name" => t[1], "expanded"=>true, "nodes" => []}
         topo["nodes"] << node
       end
 

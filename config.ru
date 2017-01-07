@@ -24,6 +24,10 @@ map "/services" do
   run ServiceController
 end
 
+map "/registers" do
+  run ServiceRegisterController
+end
+
 map "/debug" do
   run DebugController
 end

@@ -17,10 +17,10 @@ class SDN < Sinatra::Base
   enable :sessions, :logging
   use Rack::MethodOverride
   use Rack::Flash, :accessorize => [:info, :error, :success], :sweep => true
-  use Rack::Protection::AuthenticityToken # HTML forms now require: input name="authenticity_token" value=session[:csrf] type="hidden"
+  # use Rack::Protection::AuthenticityToken # HTML forms now require: input name="authenticity_token" value=session[:csrf] type="hidden"
   set :public_folder, File.dirname(__FILE__) + '/assets'
   set :views, File.dirname(__FILE__) + '/views'
-  set :session_secret, "25729f31a6bc7c57f8575db9b79ee468...." # SecureRandom.hex(128)
+  # set :session_secret, "ce0ae1957b02b5b05261" # SecureRandom.hex(128)
   set :cookie_options, { path: '/'}
 
   Slim::Engine.set_options attr_list_delims: {'(' => ')', '[' => ']'}, code_attr_delims: {'(' => ')', '[' => ']'}
@@ -32,6 +32,7 @@ class SDN < Sinatra::Base
     assets.append_path('assets/js')
     assets.append_path('assets/css')
     assets.append_path('assets/images')
+    assets.append_path('assets/fonts')
     # Twitter Bootstrap...
     #assets.append_path('lib/bootstrap/js')
     #assets.append_path('lib/bootstrap/css')
