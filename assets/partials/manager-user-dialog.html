@@ -1,109 +1,31 @@
 <style type="text/css">
-    md-input-container {
-        margin: 10px 0;
-    }
-
-    ul li {
-        margin-left: 0px;
-    }
-
-    .service-checkbox-fieldset {
-        border-width: 0px;
-        height: 100%;
-    }
-
-    .select-all-checkboxes {
-        padding-left: 30px;
-    }
+    /*md-input-container {*/
+        /*margin: 10px 0;*/
+    /*}*/
 </style>
-<md-dialog flex="80" aria-label="Create Service">
+<md-dialog flex="40" aria-label="Create Service">
     <form name="uForm" novalidate ng-submit="ctrl.submit(uForm)" role="form" ng-cloak>
         <md-toolbar>
             <div class="md-toolbar-tools">
-                <h2>创建用户</h2>
+                <h2 ng-show="isEditUser">修改用户</h2>
+                <h2 ng-show="!isEditUser">创建用户</h2>
                 <span flex></span>
                 <md-button class="md-icon-button" ng-click="ctrl.cancel()">
                     <md-icon md-svg-src="images/ic_close_white_24px.svg" aria-label="Close dialog"></md-icon>
                 </md-button>
             </div>
         </md-toolbar>
-
         <md-dialog-content>
             <div class="md-dialog-content" flex>
                 <div style="padding-right: 1em;">
-                    <p>选择目标节点或业务，并输入用户数据，创建用户</p>
                     <div layout-gt-xs="row">
-                        <div layout-gt-xs="column" layout-margin-sm flex>
-                            <div layout-gt-xs="row" flex-gt-xs="80">
-                                <div flex style="height:260px;overflow: auto;">
-                                    <treecontrol class="tree-boot"
-                                                 tree-model="treedata"
-                                                 selected-nodes="selectedNodes"
-                                                 expanded-nodes="expandedNodes"
-                                                 on-selection="showSelected(node, selected, $parentNode)"
-                                                 options="treeOptions">
-                                        {{node.name}}
-                                    </treecontrol>
-                                </div>
-                            </div>
-                            <div layout-gt-xs="row" flex-gt-xs="20">
-                                <md-input-container class="md-block" flex>
-                                    <input readonly
-                                           type="text"
-                                           name="bindPoints"
-                                           ng-model="user.bindPoints"
-                                           ng-list
-                                           placeholder="已选择 {{user.bindPoints.length || 0}} 个节点"/>
-                                </md-input-container>
-                            </div>
-                        </div>
-                        <div layout="column" layout-margin-sm flex>
-                            <div layout-gt-xs="row" flex="80">
-                                <div layout="row" flex style="height:260px;overflow: auto;">
-                                    <div flex="100" layout="column">
-                                        <div>
-                                            <fieldset class="service-checkbox-fieldset">
-                                                <div layout="row" layout-wrap="" flex="">
-                                                    <div flex-xs flex="50">
-                                                        <md-checkbox aria-label="Select All"
-                                                                     ng-checked="serviceIsChecked()"
-                                                                     md-indeterminate="serviceIsIndeterminate()"
-                                                                     ng-click="serviceToggleAll()">
-                                                            <span ng-if="serviceIsChecked()">取消</span>全选
-                                                        </md-checkbox>
-                                                    </div>
-                                                    <div class="select-all-checkboxes" flex="100"
-                                                         ng-repeat="service in services">
-                                                        <md-checkbox
-                                                                ng-model="serviceSelected"
-                                                                ng-checked="serviceExists(service)"
-                                                                ng-click="serviceToggle(service)">
-                                                            {{ service.name[0].value }}
-                                                        </md-checkbox>
-                                                    </div>
-                                                </div>
-                                            </fieldset>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div layout-gt-xs="row" flex="20" flex-sm>
-                                <md-input-container class="md-block" flex>
-                                    <input readonly
-                                           type="text"
-                                           name="services"
-                                           ng-model="user.services"
-                                           ng-list
-                                           placeholder="已选择 {{user.services.length || 0}} 个业务"/>
-                                </md-input-container>
-                            </div>
-                        </div>
                         <div layout-gt-xs="column" flex>
                             <div layout-gt-xs="row">
                                 <md-input-container class="md-block" flex>
                                     <input required ng-maxlength="16" ng-trim="true"
                                            type="text"
                                            name="username"
+                                           readonly
                                            ng-model="user.username"
                                            placeholder="用户名"/>
                                 </md-input-container>
@@ -134,8 +56,8 @@
                                 <md-input-container class="md-block" flex>
                                     <input required ng-pattern="/^(\+\d{2,3}\-)?\d{11}$/"
                                            type="text"
-                                           name="phone"
-                                           ng-model="user.phone"
+                                           name="mobile"
+                                           ng-model="user.mobile"
                                            placeholder="手机号码"/>
                                 </md-input-container>
                                 <md-input-container class="md-block" flex>

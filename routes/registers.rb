@@ -13,7 +13,6 @@ class ServiceRegisterController < SDN
       @registers << JSON.parse(register % [r.id,r.service,r.rate,r.bandwidth,r.effective_date,r.start_at,r.end_at,r.everyday])
     end
 
-    # registers = Register.all
     %Q({"count":#{results.length}, "data":#{@registers.to_json}})
   end
 

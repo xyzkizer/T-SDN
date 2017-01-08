@@ -12,6 +12,10 @@ map "/" do
   run RootController
 end
 
+map "/managers" do
+  run ManagerController
+end
+
 map "/links" do
   run LinkController
 end

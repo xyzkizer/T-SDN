@@ -11,7 +11,7 @@ class RootController < SDN
   end
 
   before do
-    @user = User.get(session[:user_id])
+    @user = Manager.get(session[:user_id])
   end
 
   get '/' do
@@ -30,7 +30,7 @@ class RootController < SDN
   end
 
   post "/login" do
-    user = User.first(:username => params['username'])
+    user = Manager.first(:username => params['username'])
 
     if user and user.password == params['password']
       session[:user_id] = user.id
