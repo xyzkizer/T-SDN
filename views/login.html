@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <title>
+    T-SDN 业务管理系统
+  </title>
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <meta name="keywords" content="T-SDN">
+  <meta name="author" content="kizer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+  <style type="text/css">
+.loginBox {
+  max-width:  90%;
+  width: 500px
+}
+
+.stretch input  {
+  width: 100%
+}
+
+  </style>
+  <link href="assets/angular-material.min.css" media="all" rel="stylesheet">
+  <script src="assets/angular.js"></script>
+<script src="assets/angular-material.min.js"></script>
+<script src="assets/angular-animate.min.js"></script>
+<script src="assets/angular-aria.min.js"></script>
+
+  <script type="text/javascript">
+var app = angular.module('LOGIN', [ 'ngMaterial'])
+ .factory('authProvider', function () {
+        var user;
+        return {
+            setUser: function (aUser) {
+                user = aUser;
+            },
+            isLoggedIn: function () {
+                return (user) ? user : false;
+            }
+        };
+    })
+    .run(['$rootScope', '$location', 'authProvider', function ($rootScope, $location, authProvider) {
+        $rootScope.$on('$routeChangeStart', function (event) {
+
+            if (!authProvider.isLoggedIn()) {
+                console.log('DENY : Redirecting to Login');
+                event.preventDefault();
+                $location.path('/login');
+            }
+            else {
+                console.log('ALLOW');
+            }
+        });
+    }])
+    .controller('LoginCtrl', ['$scope', '$http', '$window','authProvider', function ($scope, $http, $window,authProvider) {
+        $scope.submit = function () {
+            $scope.promise = $http.post('/login', $scope.user)
+                .then(
+                    function (answer) {
+                        console.log($scope.user);
+                        authProvider.setUser($scope.user);
+                        $window.location.href = './';
+                    },
+                    function (error) {
+                    },
+                    function (progress) {
+                    }
+                );
+        };
+    }]);
+
+</script>
+</head>
+
+<body>
+<div ng-app="LOGIN" ng-controller="LoginCtrl" layout="column" layout-align="center center" layout-fill="layout-fill">
+  <div class="loginBox md-whiteframe-z1" layout="column">
+    <md-toolbar>
+      <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统</span></h2>
+    </md-toolbar>
+      <form name="loginform" novalidate ng-submit="submit()" role="form" ng-cloak>
+
+    <md-content class="md-padding" layout="column">
+      <md-input-container>
+        <label>用户</label>
+        <input ng-required="true" ng-model="user.username"/>
+      </md-input-container>
+      <md-input-container>
+        <label>密码</label>
+        <input ng-required="true" type="password" ng-model="user.password"/>
+      </md-input-container>
+      <div layout="row" layout-align="center center" style="padding-top:20px">
+        <md-button type="submit" aria-label="submit"  ng-disabled="loginform.$invalid" class="md-raised md-primary">登陆</md-button>
+        <div flex="flex"></div>
+        <md-button href="" md-no-ink="md-no-ink">忘记密码</md-button>
+      </div>
+    </md-content>
+  </form>
+  </div>
+</div>
+
+
+</body>
+</html>

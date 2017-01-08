@@ -3,14 +3,23 @@ class ServiceRegisterController < SDN
   get '/' do
     content_type :json
 
-    registers = Register.all
-    logger.debug registers
+    @registers = []
+    adapter = DataMapper.repository(:default).adapter
+    results = adapter.select("SELECT `id`, `service`, `rate`, `bandwidth`, `effective_date`, `start_at`, `end_at`, `everyday` FROM `t_service_register` ORDER BY `id`")
 
-    %Q({"count":#{registers.length}, "data":#{registers.to_json}})
+    register = '{"id":%s,"service":"%s","rate":%s,"bandwidth":%s,"effective_date":"%s","start_at":"%s", "end_at":"%s","everyday":%s}'
+
+    results.each do |r|
+      @registers << JSON.parse(register % [r.id,r.service,r.rate,r.bandwidth,r.effective_date,r.start_at,r.end_at,r.everyday])
+    end
+
+    # registers = Register.all
+    %Q({"count":#{results.length}, "data":#{@registers.to_json}})
   end
 
   post '/' do
     content_type :json
+    logger.debug params.inspect
 
     content = '{"connConstraint":{"requestedCapacity":{"committedInformationRate":%s,"totalSize":%s}}}'
     if params['everyday']
@@ -34,7 +43,7 @@ class ServiceRegisterController < SDN
     else
       @t1 = Task.new(
         :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10),
+        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
         :service_id => params['service']['name'][0]['value'],
         :effective_date => params['date'],
         :effective_time => params['startAt'],
@@ -44,7 +53,7 @@ class ServiceRegisterController < SDN
 
       @t2 = Task.new(
         :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10),
+        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
         :service_id => params['service']['name'][0]['value'],
         :effective_date => params['date'],
         :effective_time => params['endAt'],

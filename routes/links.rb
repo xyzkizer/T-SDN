@@ -4,7 +4,7 @@ class LinkController < SDN
     content_type :json
     links = {}
     links[:data] = []
-    JSON.parse($redis.get($redis.get("root-topolopy")))["_linkRefList"].each do |uuid|
+    JSON.parse($redis.get($redis.get("root-topology")))["_linkRefList"].each do |uuid|
       links[:data] << JSON.parse($redis.get(uuid))
     end
     links[:count] = links[:data].length

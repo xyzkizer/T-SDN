@@ -1,0 +1,977 @@
+{
+  "data": [
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_1",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da031"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_2",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da032"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_3",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da033"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_4",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da034"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_5",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da035"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_6",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da036"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_9",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da039"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_7",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da037"
+    },
+    {
+      "_connection": [
+        "e13e1de7-cf9b-4969-ad96-046dbc1ab163"
+      ],
+      "_servicePort": [
+        {
+          "_serviceEndPoint": "31f97026-07c8-4075-9888-d4f1569d8e62",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "01f62e53-41e5-4285-a132-9f7763911754",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        },
+        {
+          "_serviceEndPoint": "a59dfc76-b4e8-4e53-9aa5-27dd0e001cfd",
+          "_statePac": {
+            "administrativeState": "UNLOCKED",
+            "lifecycleState": "INSTALLED",
+            "operationalState": "ENABLED"
+          },
+          "direction": "BIDIRECTIONAL",
+          "localId": "4fe911c4-be08-4a99-aeea-3222f11c1d49",
+          "name": [
+            {
+              "value": "",
+              "valueName": "c-tag"
+            },
+            {
+              "value": "",
+              "valueName": "LABEL"
+            },
+            {
+              "value": "",
+              "valueName": "LFID"
+            },
+            {
+              "value": "",
+              "valueName": "s-tag"
+            },
+            {
+              "value": "",
+              "valueName": "TNA"
+            },
+            {
+              "value": "",
+              "valueName": "ts_detail"
+            }
+          ],
+          "role": "SYMMETRIC"
+        }
+      ],
+      "_statePac": {
+        "administrativeState": "UNLOCKED",
+        "lifecycleState": "INSTALLED",
+        "operationalState": "ENABLED"
+      },
+      "connConstraint": {
+        "requestedCapacity": {
+          "colorAware": false,
+          "committedBurstSize": 0,
+          "committedInformationRate": 5000,
+          "couplingFlag": false,
+          "packetBwProfileType": "NOT_APPLICABLE",
+          "peakBurstSize": 0,
+          "peakInformationRate": 0,
+          "totalSize": 7500
+        },
+        "serviceType": "EPL"
+      },
+      "direction": "BIDIRECTIONAL",
+      "layerProtocolName": "ODU",
+      "name": [
+        {
+          "value": "ConnectivityService_8",
+          "valueName": "Name"
+        }
+      ],
+      "uuid": "533b9902-70dd-433e-8235-6b7a250da038"
+    }
+  ],
+  "count": 1
+}

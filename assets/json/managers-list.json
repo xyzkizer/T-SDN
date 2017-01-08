@@ -1,0 +1,67 @@
+{
+  "data": [
+    {
+      "username": "admin11111111",
+      "name": "张11111111",
+      "email": "18911111111@189.cn",
+      "phone": "18911111111",
+      "role": "admin"
+    },
+    {
+      "username": "admin22222222",
+      "name": "张22222222",
+      "email": "18922222222@189.cn",
+      "phone": "18922222222",
+      "role": "admin"
+    },
+    {
+      "username": "admin33333333",
+      "name": "张33333333",
+      "email": "18933333333@189.cn",
+      "phone": "18933333333",
+      "role": "admin"
+    },
+    {
+      "username": "admin44444444",
+      "name": "张44444444",
+      "email": "18944444444@189.cn",
+      "phone": "18944444444",
+      "role": "operator"
+    },
+    {
+      "username": "admin55555555",
+      "name": "张55555555",
+      "email": "18955555555@189.cn",
+      "phone": "18955555555",
+      "role": "operator"
+    },
+    {
+      "username": "admin66666666",
+      "name": "张66666666",
+      "email": "18966666666@189.cn",
+      "phone": "18966666666",
+      "role": "operator"
+    },
+    {
+      "username": "admin77777777",
+      "name": "张77777777",
+      "email": "18977777777@189.cn",
+      "phone": "18977777777",
+      "role": "operator"
+    },
+    {
+      "username": "admin88888888",
+      "name": "张88888888",
+      "email": "18988888888@189.cn",
+      "phone": "18988888888",
+      "role": "operator"
+    },
+    {
+      "username": "admin9999",
+      "name": "张999",
+      "email": "189999@189.cn",
+      "phone": "189999",
+      "role": "operator"
+    }
+  ]
+}

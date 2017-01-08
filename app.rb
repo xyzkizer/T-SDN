@@ -33,6 +33,7 @@ class SDN < Sinatra::Base
     assets.append_path('assets/css')
     assets.append_path('assets/images')
     assets.append_path('assets/fonts')
+    assets.append_path('assets/json')
     # Twitter Bootstrap...
     #assets.append_path('lib/bootstrap/js')
     #assets.append_path('lib/bootstrap/css')
@@ -151,5 +152,5 @@ OpenStruct.new(YAML::load(File.open('config/database.yml'))[SDN.environment.to_s
   Dir[File.join('models', '**/*.rb')].each do |file| require_relative file end
 end
 
-#$redis = Redis.new(:host => '127.0.0.1', :port => 6379)
-$redis = Redis.new(:host => '132.122.237.248', :port => 6378)
+$redis = Redis.new(:host => '127.0.0.1', :port => 6379)
+#$redis = Redis.new(:host => '132.122.237.248', :port => 6378)

@@ -1,4 +1,4 @@
-angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'promise-tracker'], [
+angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'treeControl','promise-tracker'], [
   '$routeProvider', '$locationProvider', '$mdThemingProvider', '$mdIconProvider',
   function($routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider){
 
@@ -64,14 +64,33 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
     $mdThemingProvider.enableBrowserColor();
 
-    $routeProvider.otherwise('/topology');
+    $routeProvider.otherwise('/');
 
     $locationProvider.hashPrefix('!');
 
 }])
+.config(['$mdIconProvider', function($mdIconProvider) {
+
+}])
+.config(['$sceDelegateProvider', function($sceDelegateProvider) {
+  $sceDelegateProvider.resourceUrlWhitelist([
+    'self'
+  ]);
+}])
 .config(['$mdThemingProvider', 'pickerProvider', function($mdThemingProvider, pickerProvider, picker) {
   pickerProvider.setOkLabel('确定');
   pickerProvider.setCancelLabel('关闭');
+
+}])
+.run(['$rootScope', '$location', function ($rootScope, $location) {
+
+  $rootScope.$on('$routeChangeStart', function (event) {
+    if($rootScope.logout) {
+      event.preventDefault();
+      $location.path('/login');
+    }
+  });
+
 
 }])
 .factory('menu', ['$location', '$rootScope', '$http', '$window', function($location, $rootScope, $http, $window){
@@ -368,7 +387,118 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     );
   };
   $scope.loadStuff();
+  $scope.delConfirm = function(ev) {
+    var confirm = $mdDialog.confirm()
+          .title('删除业务?')
+          .textContent('删除所选业务，不可撤销。')
+          .ariaLabel('confirm delete')
+          .targetEvent(ev)
+          .ok('确定')
+          .cancel('取消');
 
+    $mdDialog.show(confirm).then(function() {
+      var names = $scope.selected.map(function(item){return item['name'][0]['value'];});
+      $promise = $http.delete('/services/'+names.join(','))
+        .then(
+          function(response) {
+            if (response.status == 'OK') {
+              $scope.submitted = false;
+            } else {
+
+            }
+          },
+          function(error) {
+          },
+          function(progress) {
+          })
+        .finally(function() {
+          $mdDialog.cancel();
+      });
+
+    }, function() {
+      $scope.status = 'cancel';
+    });
+  };
+
+  $scope.showServiceDIalog = function(ev){
+    $mdDialog.show({
+      controller: ServiceDialogCtrl,
+      controllerAs: 'ctrl',
+      templateUrl: 'partials/sep-connect.tmpl.html',
+      parent: angular.element(document.body),
+      targetEvent: ev,
+      clickOutsideToClose:true,
+      locals:{title:"修改业务", desc:"输入业务数据，修改业务。",selectedService: $scope.selected, isUpdate:true}
+    })
+    .then(function(answer) {
+
+      $promise = $http.post('/services/'+$scope.task.name, $scope.task)
+        .then(
+          function(response) {
+            if (response.status == 'OK') {
+              $scope.submitted = false;
+            } else {
+
+            }
+          },
+          function(error) {
+          },
+          function(progress) {
+          })
+        .finally(function() {
+          $mdDialog.cancel();
+      });
+
+    }, function() {
+      $scope.status = 'You cancelled the dialog.';
+    });
+  };
+  ServiceDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'smDateTimePicker', 'selectedService', 'title','desc','isUpdate'];
+  function ServiceDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, smDateTimePicker, selectedService, title, desc, isUpdate) {
+
+    var self = this;
+    self.title = title;
+    self.desc = desc;
+    self.isUpdate = isUpdate;
+    self.everyday = true;
+
+    self.submit = function(form) {
+
+      $scope.submitted = true;
+
+      if (form.$invalid) {
+        console.log("register form invalid.");
+        return;
+      }
+      if (selectedService.length != 1) {
+        return;
+      }
+
+      $scope.task.name = selectedService[0]['name'][0]['value'];
+
+
+      $promise = $http.post('/services/'+$scope.task.name, $scope.task)
+        .then(
+          function(response) {
+            if (response.status == 'OK') {
+              $scope.submitted = false;
+            } else {
+
+            }
+          },
+          function(error) {
+          },
+          function(progress) {
+          })
+        .finally(function() {
+          $mdDialog.cancel();
+      });
+    };
+
+    self.cancel = function() {
+      $mdDialog.cancel();
+    };
+  };
   $scope.showRegisterDialog = function(ev){
     $mdDialog.show({
       controller: RegisterDialogCtrl,
@@ -448,12 +578,13 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
   $scope.connect = function(ev){
     $mdDialog.show({
-      controller: DialogCtrl,
+      controller: ServiceDialogCtrl,
       controllerAs: 'ctrl',
       templateUrl: 'partials/sep-connect.tmpl.html',
       parent: angular.element(document.body),
       targetEvent: ev,
       clickOutsideToClose:true,
+      locals:{title:"创建业务",desc:"选择目标节点，并输入业务数据，创建业务。"}
     })
     .then(function(answer) {
       $scope.status = 'You said the information was "' + answer + '".';
@@ -488,10 +619,12 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     }
   );
 
-  DialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout'];
-  function DialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout) {
+  ServiceDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'title', 'desc'];
+  function ServiceDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, title, desc) {
 
     var self = this;
+    self.title = title;
+    self.desc = desc;
     self.seps = $rootScope.seps.map(function(sep){
       return {
           value: sep.toLowerCase(),
@@ -574,8 +707,8 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
 }])
 .controller('SDNCtrl', [
-  '$scope','$mdSidenav', '$timeout', '$mdDialog', '$mdComponentRegistry', 'menu', '$location', '$rootScope', '$mdUtil',
-  function($scope, $mdSidenav, $timeout, $mdDialog, $mdComponentRegistry, menu, $location, $rootScope, $mdUtil) {
+  '$scope','$mdSidenav', '$timeout', '$mdDialog', '$mdComponentRegistry', 'menu', '$window', '$location', '$rootScope', '$mdUtil','$http',
+  function($scope, $mdSidenav, $timeout, $mdDialog, $mdComponentRegistry, menu, $window, $location, $rootScope, $mdUtil, $http) {
 
     $scope.menu = menu;
 
@@ -682,6 +815,20 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
     function toggleOpen(section) {
       menu.toggleSelectSection(section);
+    }
+    $scope.logout = function(){
+      $scope.promise = $http.get('/logout')
+      .then(
+        function (answer) {
+          $rootScope.logout = true;
+          $location.path('/login');
+          $window.location.href = './';
+        },
+        function (error) {
+        },
+        function (progress) {
+        }
+      );
     }
 
 }])

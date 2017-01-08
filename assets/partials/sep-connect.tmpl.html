@@ -2,7 +2,7 @@
   <form name="sform" novalidate ng-submit="ctrl.submit(sform)" role="form" ng-cloak>
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>创建业务</h2>
+        <h2>{{ctrl.title}}</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="ctrl.cancel()">
           <md-icon md-svg-src="assets/ic_close_white_24px.svg" aria-label="Close dialog"></md-icon>
@@ -16,7 +16,8 @@
       <div class="md-dialog-content" flex>
 
         <div style="padding-right: 1em;">
-          <p>选择目标节点，并输入业务数据，创建业务。</p>
+  <!--         <p>选择目标节点，并输入业务数据，创建业务。</p> -->
+          <p>{{ctrl.desc}}</p>
           <div layout-gt-xs="row">
             <md-input-container class="md-block" flex>
               <input ng-required="true"
@@ -37,44 +38,11 @@
                      placeholder="速率"/>
             </md-input-container>
           </div>
-
-          <!-- <div layout-gt-xs="row"> -->
-          <!--   <sm-date-time-picker -->
-          <!--       disable-year-selection="true" -->
-          <!--       no-floating-label="false" -->
-          <!--       on-focus="true" -->
-          <!--       lable="Start" -->
-          <!--       ng-model="task.startAt" -->
-          <!--       flex -->
-          <!--       flex-sm="100" -->
-          <!--       flex-xs="100" -->
-          <!--       is-required="true" -->
-          <!--       format="YYYY/MM/DD HH:mm" -->
-          <!--       mode="date-time" -->
-          <!--       week-start-day="Monday" -->
-          <!--       on-focus -->
-          <!--   ></sm-date-time-picker> -->
-
-          <!--   <span> - </span> -->
-          <!--   <sm-date-time-picker -->
-          <!--       disable-year-selection="true" -->
-          <!--       no-floating-label="true" -->
-          <!--       on-focus="true" -->
-          <!--       lable="End" -->
-          <!--       ng-model="task.endAt" -->
-          <!--       flex -->
-          <!--       flex-sm="100" -->
-          <!--       flex-xs="100" -->
-          <!--       format="YYYY/MM/DD HH:mm" -->
-          <!--       mode="date-time" -->
-          <!--       week-start-day="Monday" -->
-          <!--       on-focus -->
-          <!--   ></sm-date-time-picker> -->
-          <!-- </div> -->
-          <div layout-gt-xs="row" flex>
+          <div layout-gt-xs="row" ng-show="!ctrl.isUpdate" flex>
             <md-autocomplete
                 md-input-name="to"
                 md-require-match="true"
+                ng-required="!ctrl.isUpdate"
                 md-selected-item="task.to"
                 md-search-text="ctrl.searchText"
                 md-items="item in ctrl.querySearch(ctrl.searchText)"

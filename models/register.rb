@@ -11,4 +11,9 @@ class Register
   property :endAt,           Time
   property :everyday,        Boolean
 
+  def typecast_to_primitive(startAt)
+    logger.debug startAt
+
+  end
+
 end

@@ -18,6 +18,8 @@
   <link href="assets/application.css" media="all" rel="stylesheet">
   <link href="assets/smDateTimeRangePicker.css" media="all" rel="stylesheet">
   <link href="assets/tree.css" media="all" rel="stylesheet">
+  <link href="assets/tree-control-attribute.css" media="all" rel="stylesheet">
+  <link href="assets/tree-control.css" media="all" rel="stylesheet">
   <style type="text/css">
     @font-face {
       font-family: 'Material Icons';
@@ -127,14 +129,14 @@
                      target="_blank"
                      ng-href="">
             <md-tooltip md-autohide>settings</md-tooltip>
-            <md-icon md-svg-src="images/settings.svg" style="transform: scale(1.3)"></md-icon>
+            <md-icon md-svg-src="assets/settings.svg" style="transform: scale(1.3)"></md-icon>
           </md-button>
           <md-button class="md-icon-button"
                      aria-label="logout"
                      target="_blank"
-                     ng-href="">
+                     ng-click="logout()">
             <md-tooltip md-autohide>logout</md-tooltip>
-            <md-icon md-svg-src="images/exit.svg" style="transform: scale(1.3)"></md-icon>
+            <md-icon md-svg-src="assets/exit.svg" style="transform: scale(1.3)"></md-icon>
           </md-button>
 
         </div>
@@ -146,7 +148,7 @@
   </md-content>
 </div>
 
-<script src="assets/jquery-3.1.1.min.js"></script>
+<!-- <script src="assets/jquery-3.1.1.min.js"></script> -->
 <script src="assets/angular.js"></script>
 <script src="assets/angular-animate.min.js"></script>
 <script src="assets/angular-aria.min.js"></script>
@@ -159,6 +161,7 @@
 <script src="assets/moment.js"></script>
 <script src="assets/smDateTimeRangePicker.js"></script>
 <script src="assets/echarts.min.js"></script>
+<script src="assets/angular-tree-control.js"></script>
 <script src="assets/promise-tracker.js"></script>
 <script src="assets/application.js"></script>
 
