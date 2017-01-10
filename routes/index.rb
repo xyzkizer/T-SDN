@@ -24,12 +24,20 @@ class RootController < SDN
     $redis.get('tapi-net-topology')
   end
 
-  get "/login" do
+  get '/role/:username' do
+    logger.debug params
+    user = Manager.first(:username => params['username'])
+    if user
+      [200, %Q({"success":true, "user":#{user.to_json}})]
+    end
+  end
+
+  get '/login' do
     # session[:admin]=true; redirect back
     File.read(File.join('views', 'login.html'))
   end
 
-  post "/login" do
+  post '/login' do
     logger.debug params
     user = Manager.first(:username => params['username'])
 

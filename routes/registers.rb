@@ -16,51 +16,31 @@ class ServiceRegisterController < SDN
     %Q({"count":#{results.length}, "data":#{@registers.to_json}})
   end
 
+  delete %r{/(?<ids>.+)/?} do
+    content_type :json
+    logger.debug params.inspect
+
+    # registers = Register.all(:fields => [:id])
+    # registers.each do |r|
+    #   r.tasks(:fields => [:id]).destroy
+    # end
+
+    adapter = DataMapper.repository(:default).adapter
+    adapter.execute("DELETE FROM `t_service_register` where `id` IN (%s)" % params['ids'])
+    adapter.execute("DELETE FROM `t_service_tasklist` where `register_id` IN (%s)" % params['ids'])
+
+    # if deleted.affected_rows > 0
+    [200, %Q({"message":"done!"})]
+    # else
+    #   [500, %Q({"message":"failure!"})]
+    # end
+  end
+
   post '/' do
     content_type :json
     logger.debug params.inspect
 
-    content = '{"connConstraint":{"requestedCapacity":{"committedInformationRate":%s,"totalSize":%s}}}'
-    if params['everyday']
-      @t1 = Task.new(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_time => params['startAt'],
-        :content => content % [params['rate'], params['bandwidth']],
-        :state => 0
-      )
-
-      @t2 = Task.new(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_time => params['endAt'],
-        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
-        :state => 0
-      )
-    else
-      @t1 = Task.new(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_date => params['date'],
-        :effective_time => params['startAt'],
-        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
-        :state => 0
-      )
-
-      @t2 = Task.new(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_date => params['date'],
-        :effective_time => params['endAt'],
-        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
-        :state => 0
-      )
-    end
-    @register = Register.new(
+    @register = Register.create(
       :service => params['service']['name'][0]['value'],
       :rate => params['rate'],
       :bandwidth => params['bandwidth'],
@@ -70,18 +50,53 @@ class ServiceRegisterController < SDN
       :everyday => params['everyday']
     )
 
-    if @t1.save and @t2.save and @register.save
+    content = '{"connConstraint":{"requestedCapacity":{"committedInformationRate":%s,"totalSize":%s}}}'
+    if params['everyday']
+      @register.tasks.create(
+        :task_type => 'tapi_mod_srv',
+        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+        :service_id => params['service']['name'][0]['value'],
+        :effective_time => params['startAt'],
+        :content => content % [params['rate'], params['bandwidth']],
+        :state => 0
+      )
+
+      @register.tasks.create(
+        :task_type => 'tapi_mod_srv',
+        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+        :service_id => params['service']['name'][0]['value'],
+        :effective_time => params['endAt'],
+        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
+        :state => 0
+      )
+    else
+      @register.tasks.create(
+        :task_type => 'tapi_mod_srv',
+        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+        :service_id => params['service']['name'][0]['value'],
+        :effective_date => params['date'],
+        :effective_time => params['startAt'],
+        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
+        :state => 0
+      )
+
+      @register.tasks.create(
+        :task_type => 'tapi_mod_srv',
+        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+        :service_id => params['service']['name'][0]['value'],
+        :effective_date => params['date'],
+        :effective_time => params['endAt'],
+        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
+        :state => 0
+      )
+    end
+
+    if @register
       [200, %Q({"message":"done!"})]
     else
-       @t1.errors.each do |e|
-         logger.debug e
-       end
-       @t2.errors.each do |e|
-         logger.debug e
-       end
-       @register.errors.each do |e|
-         logger.debug e
-       end
+      @register.errors.each do |e|
+        logger.debug e
+      end
       [500, %Q({"message":"failure!"})]
     end
 

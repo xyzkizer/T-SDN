@@ -156,7 +156,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
         console.log($rootScope.globals);
         // if ($rootScope.globals.currentUser.role === 'admin') {
-        if (true) {
+        if (false) {
             sections.push(
                 {
                     name: '权限管理',
@@ -183,6 +183,9 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
             sections: sections,
 
+            addmenu: function (section) {
+                self.sections.push(section);
+            },
             selectSection: function (section) {
                 self.openedSection = section;
             },
@@ -264,18 +267,20 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             $http.post('/login', user)
                 .success(function (response) {
                     callback(response);
+                    $rootScope.role = response.user.role;
                 });
         }
 
         function SetCredentials(user) {
             var authdata = user.username + ':' + user.password;
 
-            console.log(user);
+
+            $rootScope.role = user.role;
             $rootScope.globals = {
                 currentUser: {
                     username: user.username,
                     role: user.role,
-                    authdata: user.authdata
+                    authdata: user.authdata,
                 }
             };
             $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata;
@@ -283,8 +288,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             var cookieExp = new Date();
             cookieExp.setDate(cookieExp.getDate() + 7);
             $cookies.putObject('globals', $rootScope.globals, {expires: cookieExp});
-
-            console.log($rootScope.globals);
 
         }
 
@@ -491,13 +494,24 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 );
         }
     }])
-    .controller('ServiceRegisterCtrl', ['$scope', '$http', function ($scope, $http) {
+    .controller('ServiceRegisterCtrl', ['$scope', '$http', '$mdDialog', function ($scope, $http, $mdDialog) {
 
         $scope.selected = [];
 
+        $scope.limitOptions = [5, 10, 15];
+        $scope.options = {
+            rowSelection: true,
+            multiSelect: true,
+            autoSelect: true,
+            decapitate: false,
+            largeEditDialog: false,
+            boundaryLinks: false,
+            limitSelect: true,
+            pageSelect: true
+        };
         $scope.query = {
-            order: 'from',
-            limit: 5,
+            order: 'register.service',
+            limit: 10,
             page: 1
         };
 
@@ -514,6 +528,44 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 );
         };
         $scope.loadStuff();
+
+        $scope.delConfirm = function (ev) {
+            var confirm = $mdDialog.confirm()
+                .title('删除预约?')
+                .textContent('删除所选预约，不可撤销。')
+                .ariaLabel('confirm delete register')
+                .targetEvent(ev)
+                .ok('确定')
+                .cancel('取消');
+
+            $mdDialog.show(confirm).then(function () {
+                var ids = $scope.selected.map(function (item) {
+                    return item['id'];
+                });
+                $promise = $http.delete('/registers/' + ids.join(','))
+                    .then(
+                        function (response) {
+                            if (response.status == 'OK') {
+                                $scope.submitted = false;
+                            } else {
+
+                            }
+                        },
+                        function (error) {
+                        },
+                        function (progress) {
+                        })
+                    .finally(function () {
+                        $mdDialog.cancel();
+                        $scope.loadStuff();
+                        $scope.selected = [];
+                    });
+
+            }, function () {
+                $scope.status = 'cancel';
+            });
+        };
+
 
     }])
     .controller('ServiceCtrl', ['$scope', '$http', '$mdDialog', function ($scope, $http, $mdDialog) {
@@ -1302,11 +1354,38 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 }, 100);
             };
 
+
             // Methods used by menuLink and menuToggle directives
             this.isOpen = isOpen;
             this.isSelected = isSelected;
             this.toggleOpen = toggleOpen;
             this.autoFocusContent = false;
+
+            if ($rootScope.globals.currentUser) {
+                $http.get('/role/' + $rootScope.globals.currentUser.username)
+                    .success(function (response) {
+
+                        console.log(response.user.role);
+                        if(response.user.role === 'admin'){
+                            var m = {
+                                name: '权限管理',
+                                type: 'toggle',
+                                pages: [{
+                                    name: '用户列表',
+                                    url: '/managers/list',
+                                    type: 'link'
+                                }, {
+                                    name: '资源分配',
+                                    url: '/managers/authority',
+                                    type: 'link'
+                                }]
+                            }
+
+                            menu.addmenu(m);
+                        }
+                    });
+            }
+
 
 
             var mainContentArea = document.querySelector("[role='main']");
@@ -1390,7 +1469,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             function toggleOpen(section) {
                 menu.toggleSelectSection(section);
             }
-
         }])
     .filter('nospace', function () {
         return function (value) {

@@ -11,5 +11,7 @@ class Task
   property :effective_time,  Time
   property :content,         Text
   property :state,           Integer
+  property :register_id,     Integer
 
+  belongs_to :register
 end
