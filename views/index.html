@@ -64,7 +64,33 @@
 
 <body class="docs-body" layout="row" ng-cloak>
 
-<md-sidenav class="site-sidenav md-sidenav-left md-whiteframe-z2"
+<div ng-show="!globals.currentUser" ng-controller="LoginCtrl" layout="column" layout-align="center center" layout-fill="layout-fill">
+  <div class="loginBox md-whiteframe-z1" layout="column">
+    <md-toolbar>
+      <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统{{}}</span></h2>
+    </md-toolbar>
+    <form name="loginform" novalidate ng-submit="login()" role="form" ng-cloak>
+
+      <md-content class="md-padding" layout="column">
+        <md-input-container>
+          <label>用户</label>
+          <input ng-required="true" ng-model="user.username"/>
+        </md-input-container>
+        <md-input-container>
+          <label>密码</label>
+          <input ng-required="true" type="password" ng-model="user.password"/>
+        </md-input-container>
+        <div layout="row" layout-align="center center" style="padding-top:20px">
+          <md-button type="submit" aria-label="submit"  ng-disabled="loginform.$invalid" class="md-raised md-primary">登陆</md-button>
+          <div flex="flex"></div>
+          <md-button href="" md-no-ink="md-no-ink">忘记密码</md-button>
+        </div>
+      </md-content>
+    </form>
+  </div>
+</div>
+
+<md-sidenav ng-hide="!globals.currentUser" class="site-sidenav md-sidenav-left md-whiteframe-z2"
             md-component-id="left" hide-print
             md-is-locked-open="$mdMedia('gt-sm')">
 
@@ -100,7 +126,7 @@
     </ul>
   </md-content>
 </md-sidenav>
-<div layout="column" tabIndex="-1" role="main" flex>
+<div ng-hide="!globals.currentUser" layout="column" tabIndex="-1" role="main" flex>
   <md-toolbar class="md-whiteframe-glow-z1 site-content-toolbar">
     <div class="md-toolbar-tools docs-toolbar-tools" tabIndex="-1">
       <md-button class="md-icon-button" ng-click="openMenu()" hide-gt-sm aria-label="Toggle Menu">
@@ -155,6 +181,7 @@
 <script src="assets/angular-loader.min.js"></script>
 <script src="assets/angular-messages.min.js"></script>
 <script src="assets/angular-route.min.js"></script>
+<script src="assets/angular-cookies.min.js"></script>
 <script src="assets/sidenav.js"></script>
 <script src="assets/angular-material.min.js"></script>
 <script src="assets/md-data-table.js"></script>

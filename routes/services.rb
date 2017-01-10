@@ -3,10 +3,15 @@ class ServiceController < SDN
   get '/' do
     content_type :json
 
+    @user = Manager.first(:id => session[:user_id])
+    user_services = @user.services.map{|s| s.service_id }
+
     services = {}
     services[:data] = []
     JSON.parse($redis.get(%Q(#{$redis.get("root-topology")}.connService))).each do |uuid|
-      services[:data] << JSON.parse($redis.get(uuid))
+      s = JSON.parse($redis.get(uuid))
+      next if @user.username != 'root' and !user_services.include? s['name'][0]['value']
+      services[:data] << s
     end
     services[:count] = services[:data].length
 
@@ -67,6 +72,7 @@ class ServiceController < SDN
 
     @task = Task.new(
       :task_type => 'tapi_add_srv',
+      :user_id => session['user_id'],
       :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
       :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
       :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S%L"),

@@ -25,7 +25,7 @@
                                     <input required ng-maxlength="16" ng-trim="true"
                                            type="text"
                                            name="username"
-                                           readonly
+                                           ng-readonly="isEditUser"
                                            ng-model="user.username"
                                            placeholder="用户名"/>
                                 </md-input-container>

@@ -1,85 +1,27 @@
 <!doctype html>
-<html>
+<html ng-app="SDN" lang="en" ng-strict-di >
 <head>
-  <title>
-    T-SDN 业务管理系统
-  </title>
+  <base href="/">
+  <title> T-SDN 业务管理系统 </title>
 
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <meta name="keywords" content="T-SDN">
   <meta name="author" content="kizer">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-  <style type="text/css">
-.loginBox {
-  max-width:  90%;
-  width: 500px
-}
-
-.stretch input  {
-  width: 100%
-}
-
-  </style>
   <link href="assets/angular-material.min.css" media="all" rel="stylesheet">
-  <script src="assets/angular.js"></script>
-<script src="assets/angular-material.min.js"></script>
-<script src="assets/angular-animate.min.js"></script>
-<script src="assets/angular-aria.min.js"></script>
+  <link href="assets/application.css" media="all" rel="stylesheet">
 
-  <script type="text/javascript">
-var app = angular.module('LOGIN', [ 'ngMaterial'])
- .factory('authProvider', function () {
-        var user;
-        return {
-            setUser: function (aUser) {
-                user = aUser;
-            },
-            isLoggedIn: function () {
-                return (user) ? user : false;
-            }
-        };
-    })
-    .run(['$rootScope', '$location', 'authProvider', function ($rootScope, $location, authProvider) {
-        $rootScope.$on('$routeChangeStart', function (event) {
-
-            if (!authProvider.isLoggedIn()) {
-                console.log('DENY : Redirecting to Login');
-                event.preventDefault();
-                $location.path('/login');
-            }
-            else {
-                console.log('ALLOW');
-            }
-        });
-    }])
-    .controller('LoginCtrl', ['$scope', '$http', '$window','authProvider', function ($scope, $http, $window,authProvider) {
-        $scope.submit = function () {
-            $scope.promise = $http.post('/login', $scope.user)
-                .then(
-                    function (answer) {
-                        console.log($scope.user);
-                        authProvider.setUser($scope.user);
-                        $window.location.href = './';
-                    },
-                    function (error) {
-                    },
-                    function (progress) {
-                    }
-                );
-        };
-    }]);
-
-</script>
 </head>
 
-<body>
-<div ng-app="LOGIN" ng-controller="LoginCtrl" layout="column" layout-align="center center" layout-fill="layout-fill">
+<body class="docs-body" layout="row" ng-cloak>
+
+<div ng-controller="LoginCtrl" layout="column" layout-align="center center" layout-fill="layout-fill">
   <div class="loginBox md-whiteframe-z1" layout="column">
     <md-toolbar>
-      <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统</span></h2>
+      <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统{{}}</span></h2>
     </md-toolbar>
-      <form name="loginform" novalidate ng-submit="submit()" role="form" ng-cloak>
+      <form name="loginform" novalidate ng-submit="login()" role="form" ng-cloak>
 
     <md-content class="md-padding" layout="column">
       <md-input-container>
@@ -100,6 +42,23 @@ var app = angular.module('LOGIN', [ 'ngMaterial'])
   </div>
 </div>
 
+<!-- <script src="assets/jquery-3.1.1.min.js"></script> -->
+<script src="assets/angular.js"></script>
+<script src="assets/angular-animate.min.js"></script>
+<script src="assets/angular-aria.min.js"></script>
+<script src="assets/angular-loader.min.js"></script>
+<script src="assets/angular-messages.min.js"></script>
+<script src="assets/angular-route.min.js"></script>
+<script src="assets/angular-cookies.min.js"></script>
+<script src="assets/sidenav.js"></script>
+<script src="assets/angular-material.min.js"></script>
+<script src="assets/md-data-table.js"></script>
+<script src="assets/moment.js"></script>
+<script src="assets/smDateTimeRangePicker.js"></script>
+<script src="assets/echarts.min.js"></script>
+<script src="assets/angular-tree-control.js"></script>
+<script src="assets/promise-tracker.js"></script>
+<script src="assets/application.js"></script>
 
 </body>
 </html>

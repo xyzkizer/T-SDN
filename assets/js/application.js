@@ -1,4 +1,4 @@
-angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'treeControl', 'promise-tracker'], [
+angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'ngCookies', 'treeControl', 'promise-tracker'], [
     '$routeProvider', '$locationProvider', '$mdThemingProvider', '$mdIconProvider',
     function ($routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider) {
 
@@ -68,10 +68,39 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
         $mdThemingProvider.enableBrowserColor();
 
-        $routeProvider.otherwise('/');
+        $routeProvider.otherwise('/topology');
 
         $locationProvider.hashPrefix('!');
 
+    }])
+    .run(['$rootScope', '$location', '$cookies', '$http', function ($rootScope, $location, $cookies, $http) {
+        $rootScope.globals = $cookies.getObject('globals') || {};
+        if ($rootScope.globals.currentUser) {
+            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata;
+        }
+        $rootScope.$on('$locationChangeStart', function (event, next, current) {
+            // redirect to login page if not logged in and trying to access a restricted page
+            // var restrictedPage = $.inArray($location.path(), ['/login']) === -1;
+            var loggedIn = $rootScope.globals.currentUser;
+
+            if (!loggedIn) {
+                console.log("must login");
+            } else {
+                // $location.path('/');
+                // $window.location.href = './';
+            }
+        });
+        // $rootScope.$on('$locationChangeStart', function (event, next, current) {
+        //     // redirect to login page if not logged in and trying to access a restricted page
+        //     // var restrictedPage = $.inArray($location.path(), ['/login']) === -1;
+        //     var loggedIn = $rootScope.globals.currentUser;
+        //     console.log(!loggedIn);
+        //
+        //     if ($location.path() !== '/login' && !loggedIn) {
+        //         console.log("redirect to login");
+        //         $location.path('/login');
+        //     }
+        // });
     }])
     .config(['$mdIconProvider', function ($mdIconProvider) {
 
@@ -86,24 +115,14 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         pickerProvider.setCancelLabel('关闭');
 
     }])
-    .run(['$rootScope', '$location', function ($rootScope, $location) {
-
-        $rootScope.$on('$routeChangeStart', function (event) {
-            if ($rootScope.logout) {
-                event.preventDefault();
-                $location.path('/login');
-            }
-        });
-
-
-    }])
     .factory('menu', ['$location', '$rootScope', '$http', '$window', function ($location, $rootScope, $http, $window) {
 
-        var sections = [{
-            name: '节点拓扑',
-            url: '/topology',
-            type: 'link'
-        },
+        var sections = [
+            {
+                name: '节点拓扑',
+                url: '/topology',
+                type: 'link'
+            },
             {
                 name: '配置管理',
                 type: 'toggle',
@@ -123,7 +142,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 name: '设备管理',
                 type: 'toggle',
                 pages: [{
-                    name: 'Service-End-Point 列表',
+                    name: '节点列表',
                     url: '/devices/seps',
                     type: 'link'
                 },
@@ -133,21 +152,27 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                         type: 'link'
 
                     }]
-            },
-            {
-                name: '权限管理',
-                type: 'toggle',
-                pages: [{
-                    name: '用户列表',
-                    url: '/managers/list',
-                    type: 'link'
-                }, {
-                    name: '资源分配',
-                    url: '/managers/authority',
-                    type: 'link'
-                }]
             }];
 
+        console.log($rootScope.globals);
+        // if ($rootScope.globals.currentUser.role === 'admin') {
+        if (true) {
+            sections.push(
+                {
+                    name: '权限管理',
+                    type: 'toggle',
+                    pages: [{
+                        name: '用户列表',
+                        url: '/managers/list',
+                        type: 'link'
+                    }, {
+                        name: '资源分配',
+                        url: '/managers/authority',
+                        type: 'link'
+                    }]
+                }
+            )
+        }
         sections.push();
 
         var self;
@@ -223,6 +248,50 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                     matchPage(section, section);
                 }
             });
+        }
+
+    }])
+    .factory('auth', ['$http', '$cookies', '$rootScope', '$timeout', function ($http, $cookies, $rootScope, $timeout) {
+        var service = {};
+
+        service.login = login;
+        service.SetCredentials = SetCredentials;
+        service.ClearCredentials = ClearCredentials;
+
+        return service;
+        function login(user, callback) {
+            var response;
+            $http.post('/login', user)
+                .success(function (response) {
+                    callback(response);
+                });
+        }
+
+        function SetCredentials(user) {
+            var authdata = user.username + ':' + user.password;
+
+            console.log(user);
+            $rootScope.globals = {
+                currentUser: {
+                    username: user.username,
+                    role: user.role,
+                    authdata: user.authdata
+                }
+            };
+            $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata;
+            // store user details in globals cookie that keeps user logged in for 1 week (or until they logout)
+            var cookieExp = new Date();
+            cookieExp.setDate(cookieExp.getDate() + 7);
+            $cookies.putObject('globals', $rootScope.globals, {expires: cookieExp});
+
+            console.log($rootScope.globals);
+
+        }
+
+        function ClearCredentials() {
+            $rootScope.globals = {};
+            $cookies.remove('globals');
+            $http.defaults.headers.common.Authorization = 'Basic';
         }
 
     }])
@@ -331,9 +400,96 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
 
     }])
-    .controller('TopologyCtrl', ['$scope', '$rootScope', function ($scope, $rootScope) {
+    .controller('LoginCtrl', ['$scope', '$location', 'auth', 'menu', function ($scope, $location, auth, menu) {
 
 
+        $scope.login = function login() {
+            $scope.dataLoading = true;
+            auth.login($scope.user, function (response) {
+                if (response.success) {
+                    auth.SetCredentials($scope.user);
+
+                    console.log("login success!");
+
+                    $location.path('/');
+                } else {
+                    console.log(response.message);
+                    $scope.dataLoading = false;
+                }
+            });
+        };
+
+        (function initController() {
+            // reset login status
+            auth.ClearCredentials();
+        })();
+
+    }])
+    .controller('TopologyCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
+
+
+        $scope.cartToPo = function (data, links) {
+            console.log('start draw graph...');
+            var chart = echarts.init(document.getElementById('graph'));
+            option = {
+                title: {
+                    text: ''
+                },
+                tooltip: {},
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: 'quinticInOut',
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'none',
+                        symbolSize: 80,
+                        roam: true,
+                        label: {
+                            normal: {
+                                show: true
+                            }
+                        },
+                        edgeSymbol: ['circle', 'arrow'],
+                        edgeSymbolSize: [4, 10],
+                        edgeLabel: {
+                            normal: {
+                                textStyle: {
+                                    fontSize: 24
+                                }
+                            }
+                        },
+
+                        data: data,
+                        links: links,
+                        lineStyle: {
+                            normal: {
+                                opacity: 0.9,
+                                width: 3,
+                                curveness: 0
+                            }
+                        }
+                    }
+                ]
+            };
+
+            chart.setOption(option);
+        };
+
+        $scope.graphInit = function () {
+            var topoData;
+            $scope.promise = $http.get('/topograph')
+                .then(
+                    function (answer) {
+                        topoData = answer.data;
+                        $scope.cartToPo(topoData.data, topoData.links);
+                    },
+                    function (error) {
+                        console.log("error");
+                    },
+                    function (progress) {
+                    }
+                );
+        }
     }])
     .controller('ServiceRegisterCtrl', ['$scope', '$http', function ($scope, $http) {
 
@@ -879,7 +1035,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             }
 
             self.submit = function (uForm) {
-              console.log($scope.user.username);
                 $http.post("/managers/" + ($scope.isEditUser ? $scope.user.username : ""), $scope.user).then(function (success) {
                     console.log(success);
                 }, function (error) {
@@ -969,9 +1124,9 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 .then(success, error, progress);
         }
 
-        var submit = function (authForm) {
+        $scope.submit = function (authForm) {
             $scope.user.username = $scope.selected[0].username;
-            $http.post("managers/editAuthority", $scope.user).then(function (success) {
+            $http.post("managers/" + $scope.user.username, $scope.user).then(function (success) {
                 console.log(success);
             }, function (error) {
                 console.log(error);
@@ -1053,13 +1208,13 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
         // $scope.selected
         $scope.selectUser = function (item) {
-            $http.get("/json/managers-user-bindpoints.json"/*, {username: user.username}*/).then(function (success) {
+            $http.get("/managers/" + item.username + "/seps"/*, {username: user.username}*/).then(function (success) {
                 $scope.user.bindPoints = success.data.data;
                 initBindPoints($scope.treedata, success.data.data);
             }, function (error) {
             });
 
-            $http.get("/json/managers-user-services.json"/*, {username: user.username}*/).then(function (success) {
+            $http.get("/managers/" + item.username + "/services"/*, {username: user.username}*/).then(function (success) {
                 $scope.user.services = success.data.data;
                 $scope.serviceSelected = success.data.data;
             }, function (error) {
@@ -1115,8 +1270,8 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
     }])
     .controller('SDNCtrl', [
-        '$scope', '$mdSidenav', '$timeout', '$mdDialog', '$mdComponentRegistry', 'menu', '$window', '$location', '$rootScope', '$mdUtil', '$http',
-        function ($scope, $mdSidenav, $timeout, $mdDialog, $mdComponentRegistry, menu, $window, $location, $rootScope, $mdUtil, $http) {
+        '$scope', '$window', '$mdSidenav', '$timeout', '$mdDialog', '$mdComponentRegistry', 'menu', '$window', '$location', '$rootScope', '$mdUtil', '$http',
+        function ($scope, $window, $mdSidenav, $timeout, $mdDialog, $mdComponentRegistry, menu, $window, $location, $rootScope, $mdUtil, $http) {
 
             $scope.menu = menu;
 
@@ -1128,6 +1283,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             $scope.scrollTop = scrollTop;
 
             $rootScope.$on('$locationChangeSuccess', openPage);
+
             $scope.focusMainContent = focusMainContent;
 
             Object.defineProperty($rootScope, "relatedPage", {
@@ -1233,21 +1389,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
             function toggleOpen(section) {
                 menu.toggleSelectSection(section);
-            }
-
-            $scope.logout = function () {
-                $scope.promise = $http.get('/logout')
-                    .then(
-                        function (answer) {
-                            $rootScope.logout = true;
-                            $location.path('/login');
-                            $window.location.href = './';
-                        },
-                        function (error) {
-                        },
-                        function (progress) {
-                        }
-                    );
             }
 
         }])

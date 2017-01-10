@@ -131,12 +131,8 @@ class SDN < Sinatra::Base
   end
 
   not_found do
-    slim :'errors/404'
+    redirect '/'
   end
-
-  #error ActiveRecord::RecordNotFound do
-  #  slim :'errors/404'
-  #end
 
 end
 

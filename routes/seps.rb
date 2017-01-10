@@ -6,15 +6,23 @@ class ServiceEndPointController < SDN
     respond = {}
     top = []
 
+    @user = Manager.first(:id => session[:user_id])
+
+    user_seps = @user.seps.map{ |s| s.sep_id }
+
     JSON.parse($redis.get(%Q(#{$redis.get("root-topology")}.serviceEndPoint))).each do |sep|
-      sep = JSON.parse($redis.get(sep))
+      sep = JSON.parse($redis.get(sep).force_encoding('UTF-8'))
       name = sep["name"][0]["value"]
+
+      next if @user.username != 'root' and !user_seps.include? name
+
       typo, node, type = name.split('_').map { |pair|
         pair.partition('/').first
       }
       top << [typo, node, type, name]
     end
 
+    logger.debug top
     names = top.map {|t| t[3]}
 
     # to be shortcut,

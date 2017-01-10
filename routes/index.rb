@@ -30,14 +30,17 @@ class RootController < SDN
   end
 
   post "/login" do
+    logger.debug params
     user = Manager.first(:username => params['username'])
 
     if user and user.password == params['password']
       session[:user_id] = user.id
       session[:role] = user.role
       logger.debug "login success - #{user.username}"
+      [200, %Q({"success":true, "user":#{user.to_json}})]
+    else
+      [401, %Q({"success":false, "message":"login failed!"})]
     end
-    [200]
   end
 
   get "/logout" do

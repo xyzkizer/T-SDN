@@ -55,15 +55,16 @@
                            data-ng-model="selected" md-progress="promise">
                         <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="getUsers">
                         <tr md-row>
-                            <th md-column md-order-by="name"><span>姓名</span></th>
+                            <th md-column md-order-by="name"><span>账号</span></th>
                         </tr>
                         </thead>
                         <tbody md-body>
                         <tr md-row md-select="user" md-on-select="selectUser" md-on-deselect="deselectUser"
                             md-select-id="username"
                             md-auto-select="options.autoSelect"
+                            ng-if="user.username!='root'"
                             ng-repeat="user in users.data | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
-                            <td md-cell>{{user.name}}</td>
+                            <td md-cell>{{user.username}}</td>
                         </tr>
                         </tbody>
                     </table>
