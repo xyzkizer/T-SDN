@@ -9,6 +9,8 @@ require "sinatra/logger"
 require 'rack-flash'
 require 'data_mapper'
 require 'json'
+require 'openssl'
+require 'jwt'
 
 class SDN < Sinatra::Base
 
@@ -24,7 +26,6 @@ class SDN < Sinatra::Base
   set :cookie_options, { path: '/'}
 
   Slim::Engine.set_options attr_list_delims: {'(' => ')', '[' => ']'}, code_attr_delims: {'(' => ')', '[' => ']'}
-
 
   def self.sprockets
     project_root = File.expand_path(File.dirname(__FILE__))
@@ -43,39 +44,56 @@ class SDN < Sinatra::Base
   helpers Sinatra::Cookies
   helpers Sinatra::ContentFor
   helpers do
-    def authenticity_token
-      session[:csrf] = SecureRandom.hex(128) unless session.has_key?(:csrf)
-      %Q{<input type="hidden" name="authenticity_token" value="#{session[:csrf]}"/>}
+    # protected just does a redirect if we don't have a valid token
+    def protected!
+      return if authorized?
+      # redirect to('/login')
+    end
+
+    def extract_token
+      # check for the access_token header
+      token = request.env["access_token"]
+      if token
+        return token
+      end
+
+      # or the form parameter _access_token
+      token = request["access_token"]
+      if token
+        return token
+      end
+      # or check the session for the access_token
+      token = session["access_token"]
+      if token
+        return token
+      end
+      return nil
+    end
+
+    # check the token to make sure it is valid with our public key
+    def authorized?
+      @token = extract_token
+      begin
+        payload, header = JWT.decode(@token, nil, false)
+        @exp = header["exp"]
+        # check to see if the exp is set (we don't accept forever tokens)
+        if @exp.nil?
+          logger.debug "Access token doesn't have exp set"
+          return false
+        end
+        @exp = Time.at(@exp.to_i)
+        # make sure the token hasn't expired
+        if Time.now > @exp
+          logger.debug "Access token expired"
+          return false
+        end
+        @user_id = payload["user_id"]
+      rescue JWT::DecodeError => e
+        logger.error e
+        return false
+      end
     end
   end
-
-  #configure do
-  #  enable :logging
-  #  Dir.mkdir('log') unless File.exists?('log')
-  #end
-
-  #configure do
-  #  use Rack::CommonLogger, File.new('log/access.log', 'a+')
-  #end
-
-  #configure :development, :production do
-  #  # Configure logging, WTF
-  #  set :logging, false
-  #  class ::Logger; alias_method :write, :<<; end
-  #  logfile = File.join(SDN.root, 'log', "#{SDN.environment}.log")
-  #  # Send STDs to log file
-  #  $stdout.reopen(logfile)
-  #  $stderr.reopen(logfile)
-  #  $stderr.sync = true
-  #  $stdout.sync = true
-  #  # Weekly roll
-  #  log  = Logger.new(logfile, 'weekly')
-  #  log.level = Logger::DEBUG
-  #  # use Rack::CommonLogger, log
-  #  set :log, log
-
-  #  #Compass.add_project_configuration(File.join(Sinatra::Application.root, 'config', 'compass.rb'))
-  #end
 
   configure :development do
     require "sinatra/reloader"

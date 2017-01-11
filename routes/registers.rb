@@ -9,7 +9,13 @@ class ServiceRegisterController < SDN
 
     register = '{"id":%s,"service":"%s","rate":%s,"bandwidth":%s,"effective_date":"%s","start_at":"%s", "end_at":"%s","everyday":%s}'
 
+    user = Manager.first(:id => session['user_id'])
+
+    user_services = Service.all(:manager_id => session['user_id']).map { |s|
+      s.service_id
+    }
     results.each do |r|
+      next unless user.role == "admin" and user_services.include? r.service
       @registers << JSON.parse(register % [r.id,r.service,r.rate,r.bandwidth,r.effective_date,r.start_at,r.end_at,r.everyday])
     end
 

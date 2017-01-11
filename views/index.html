@@ -64,7 +64,7 @@
 
 <body class="docs-body" layout="row" ng-cloak>
 
-<div ng-show="!globals.currentUser" ng-controller="LoginCtrl" layout="column" layout-align="center center" layout-fill="layout-fill">
+<div ng-hide="isAuthed()" layout="column" layout-align="center center" layout-fill="layout-fill">
   <div class="loginBox md-whiteframe-z1" layout="column">
     <md-toolbar>
       <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统{{}}</span></h2>
@@ -90,7 +90,7 @@
   </div>
 </div>
 
-<md-sidenav ng-hide="!globals.currentUser" class="site-sidenav md-sidenav-left md-whiteframe-z2"
+<md-sidenav ng-show="isAuthed()" class="site-sidenav md-sidenav-left md-whiteframe-z2"
             md-component-id="left" hide-print
             md-is-locked-open="$mdMedia('gt-sm')">
 
@@ -126,7 +126,7 @@
     </ul>
   </md-content>
 </md-sidenav>
-<div ng-hide="!globals.currentUser" layout="column" tabIndex="-1" role="main" flex>
+<div ng-show="isAuthed()" layout="column" tabIndex="-1" role="main" flex>
   <md-toolbar class="md-whiteframe-glow-z1 site-content-toolbar">
     <div class="md-toolbar-tools docs-toolbar-tools" tabIndex="-1">
       <md-button class="md-icon-button" ng-click="openMenu()" hide-gt-sm aria-label="Toggle Menu">
@@ -150,13 +150,11 @@
         <span flex></span> <!-- use up the empty space -->
 
         <div class="md-toolbar-item docs-tools" layout="row">
-          <md-button class="md-icon-button"
-                     aria-label="settings"
-                     target="_blank"
-                     ng-href="">
-            <md-tooltip md-autohide>settings</md-tooltip>
-            <md-icon md-svg-src="assets/settings.svg" style="transform: scale(1.3)"></md-icon>
-          </md-button>
+
+          <div layout="row" layout-align="center center">
+            <span>{{user.username}}</span>
+          </div>
+
           <md-button class="md-icon-button"
                      aria-label="logout"
                      target="_blank"

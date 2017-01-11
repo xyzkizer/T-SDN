@@ -63,9 +63,9 @@ class ManagerController < SDN
       @user.errors.each do |e|
         logger.debug e
       end
-      [200, %Q({"message":"updated!"})]
+      [200, %Q({"message":"更新成功！"})]
     else
-      [500, %Q({"message":"failure!"})]
+      [500, %Q({"message":"更新失败！"})]
     end
   end
 

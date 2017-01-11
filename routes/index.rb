@@ -1,27 +1,25 @@
 class RootController < SDN
 
-  helpers do
-    def login?
-      session[:user_id]
-    end
-    def protected!
-      redirect '/login' unless login?
-      # halt 401,"You are not authorized to see this page!" unless login?
-    end
-  end
-
-  before do
-    @user = Manager.get(session[:user_id])
-  end
-
   get '/' do
     protected!
     File.read(File.join('views', 'index.html'))
   end
 
+  get '/logout' do
+    session["access_token"] = nil
+    redirect to("/")
+  end
+
   get '/topograph' do
     content_type :json
-    $redis.get('tapi-net-topology')
+    user_topo = $redis.get(%Q(user_#{session['user_id']}.topology}))
+    tapi = JSON.parse($redis.get('tapi-net-topology'))
+
+    if user_topo and session['user_id'] != "1"
+      user_links = JSON.parse(user_topo).links
+      tapi.links.unshift(*user_links)
+    end
+    tapi.to_json
   end
 
   get '/role/:username' do
@@ -33,7 +31,6 @@ class RootController < SDN
   end
 
   get '/login' do
-    # session[:admin]=true; redirect back
     File.read(File.join('views', 'login.html'))
   end
 
@@ -42,18 +39,21 @@ class RootController < SDN
     user = Manager.first(:username => params['username'])
 
     if user and user.password == params['password']
-      session[:user_id] = user.id
-      session[:role] = user.role
-      logger.debug "login success - #{user.username}"
-      [200, %Q({"success":true, "user":#{user.to_json}})]
+      headers = {
+        exp: Time.now.to_i + 600 #expire in 20 seconds
+      }
+      exp = Time.now.to_i + 600 #expire in 20 seconds
+      @token = JWT.encode({user_id: user.username, role: user.role, exp: exp }, nil, 'none', headers)
+      session["access_token"] = @token
+      session["user_id"] = user.id
+
+      # redirect to("/")
+
+
+      [200, %Q({"success":true, "token": "#{@token}", "user":#{user.to_json}})]
     else
       [401, %Q({"success":false, "message":"login failed!"})]
     end
-  end
-
-  get "/logout" do
-    session[:user_id] = nil
-    session[:role] = nil
   end
 
   before do

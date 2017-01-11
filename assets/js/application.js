@@ -73,35 +73,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         $locationProvider.hashPrefix('!');
 
     }])
-    .run(['$rootScope', '$location', '$cookies', '$http', function ($rootScope, $location, $cookies, $http) {
-        $rootScope.globals = $cookies.getObject('globals') || {};
-        if ($rootScope.globals.currentUser) {
-            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata;
-        }
-        $rootScope.$on('$locationChangeStart', function (event, next, current) {
-            // redirect to login page if not logged in and trying to access a restricted page
-            // var restrictedPage = $.inArray($location.path(), ['/login']) === -1;
-            var loggedIn = $rootScope.globals.currentUser;
-
-            if (!loggedIn) {
-                console.log("must login");
-            } else {
-                // $location.path('/');
-                // $window.location.href = './';
-            }
-        });
-        // $rootScope.$on('$locationChangeStart', function (event, next, current) {
-        //     // redirect to login page if not logged in and trying to access a restricted page
-        //     // var restrictedPage = $.inArray($location.path(), ['/login']) === -1;
-        //     var loggedIn = $rootScope.globals.currentUser;
-        //     console.log(!loggedIn);
-        //
-        //     if ($location.path() !== '/login' && !loggedIn) {
-        //         console.log("redirect to login");
-        //         $location.path('/login');
-        //     }
-        // });
-    }])
     .config(['$mdIconProvider', function ($mdIconProvider) {
 
     }])
@@ -115,6 +86,88 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         pickerProvider.setCancelLabel('关闭');
 
     }])
+    .config(['$httpProvider', function ($httpProvider) {
+        $httpProvider.interceptors.push('authInterceptor');
+    }])
+    .factory('authInterceptor', ['auth', function (auth) {
+        return {
+            // automatically attach Authorization header
+            // TODO
+            request: function (config) {
+                var token = auth.getToken();
+                if (config.url.indexOf(".js") !== 0 && token) {
+                    config.headers.Authorization = 'Bearer ' + token;
+                }
+                return config;
+            },
+
+            response: function (res) {
+                if (res.data.token) {
+                    auth.saveToken(res.data.token);
+                }
+
+                return res;
+            },
+        }
+
+    }])
+    .service('auth', ['$window', function ($window) {
+        var srvc = this;
+
+        srvc.parseJwt = function (token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace('-', '+').replace('_', '/');
+            return JSON.parse($window.atob(base64));
+        };
+
+        srvc.saveToken = function (token) {
+            $window.localStorage['jwtToken'] = token
+        };
+
+        srvc.logout = function (token) {
+            $window.localStorage.removeItem('jwtToken');
+        };
+
+        srvc.getToken = function () {
+            return $window.localStorage['jwtToken'];
+        };
+
+        srvc.isAuthed = function () {
+            var token = srvc.getToken();
+            if (token) {
+                var params = srvc.parseJwt(token);
+                return Math.round(new Date().getTime() / 1000) <= params.exp;
+            } else {
+                return false;
+            }
+        }
+
+    }])
+    .service('user', ['$http', 'auth', function ($http, auth) {
+        var srvc = this;
+        srvc.getQuote = function () {
+            return $http.get('/auth/quote')
+        }
+
+        srvc.login = function (username, password) {
+            return $http.post('/login', {
+                username: username,
+                password: password
+            });
+        };
+
+    }])
+    .directive('validate', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel', // require:  '^form',
+
+            link: function (scope, element, attrs, ctrl) {
+                console.log(scope.sform.$error);
+
+            }
+        };
+    })
     .factory('menu', ['$location', '$rootScope', '$http', '$window', function ($location, $rootScope, $http, $window) {
 
         var sections = [
@@ -152,27 +205,22 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                         type: 'link'
 
                     }]
+            },
+            {
+                name: '权限管理',
+                type: 'toggle',
+                pages: [{
+                    name: '用户列表',
+                    url: '/managers/list',
+                    type: 'link'
+                }, {
+                    name: '资源分配',
+                    url: '/managers/authority',
+                    type: 'link'
+                }]
             }];
 
-        console.log($rootScope.globals);
-        // if ($rootScope.globals.currentUser.role === 'admin') {
-        if (false) {
-            sections.push(
-                {
-                    name: '权限管理',
-                    type: 'toggle',
-                    pages: [{
-                        name: '用户列表',
-                        url: '/managers/list',
-                        type: 'link'
-                    }, {
-                        name: '资源分配',
-                        url: '/managers/authority',
-                        type: 'link'
-                    }]
-                }
-            )
-        }
+
         sections.push();
 
         var self;
@@ -185,6 +233,14 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
             addmenu: function (section) {
                 self.sections.push(section);
+            },
+            operatormenu: function () {
+                self.sections.forEach(function (section, index) {
+
+                    if (section.name === "权限管理") {
+                        sections.splice(index, 1);
+                    }
+                })
             },
             selectSection: function (section) {
                 self.openedSection = section;
@@ -254,61 +310,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         }
 
     }])
-    .factory('auth', ['$http', '$cookies', '$rootScope', '$timeout', function ($http, $cookies, $rootScope, $timeout) {
-        var service = {};
-
-        service.login = login;
-        service.SetCredentials = SetCredentials;
-        service.ClearCredentials = ClearCredentials;
-
-        return service;
-        function login(user, callback) {
-            var response;
-            $http.post('/login', user)
-                .success(function (response) {
-                    callback(response);
-                    $rootScope.role = response.user.role;
-                });
-        }
-
-        function SetCredentials(user) {
-            var authdata = user.username + ':' + user.password;
-
-
-            $rootScope.role = user.role;
-            $rootScope.globals = {
-                currentUser: {
-                    username: user.username,
-                    role: user.role,
-                    authdata: user.authdata,
-                }
-            };
-            $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata;
-            // store user details in globals cookie that keeps user logged in for 1 week (or until they logout)
-            var cookieExp = new Date();
-            cookieExp.setDate(cookieExp.getDate() + 7);
-            $cookies.putObject('globals', $rootScope.globals, {expires: cookieExp});
-
-        }
-
-        function ClearCredentials() {
-            $rootScope.globals = {};
-            $cookies.remove('globals');
-            $http.defaults.headers.common.Authorization = 'Basic';
-        }
-
-    }])
-    .directive('validate', function () {
-        return {
-            restrict: 'A',
-            require: 'ngModel', // require:  '^form',
-
-            link: function (scope, element, attrs, ctrl) {
-                console.log(scope.sform.$error);
-
-            }
-        };
-    })
     .directive('menuLink', function () {
         return {
             scope: {
@@ -403,36 +404,10 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
 
     }])
-    .controller('LoginCtrl', ['$scope', '$location', 'auth', 'menu', function ($scope, $location, auth, menu) {
-
-
-        $scope.login = function login() {
-            $scope.dataLoading = true;
-            auth.login($scope.user, function (response) {
-                if (response.success) {
-                    auth.SetCredentials($scope.user);
-
-                    console.log("login success!");
-
-                    $location.path('/');
-                } else {
-                    console.log(response.message);
-                    $scope.dataLoading = false;
-                }
-            });
-        };
-
-        (function initController() {
-            // reset login status
-            auth.ClearCredentials();
-        })();
-
-    }])
     .controller('TopologyCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
 
 
         $scope.cartToPo = function (data, links) {
-            console.log('start draw graph...');
             var chart = echarts.init(document.getElementById('graph'));
             option = {
                 title: {
@@ -468,7 +443,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                             normal: {
                                 opacity: 0.9,
                                 width: 3,
-                                curveness: 0
+                                curveness: 0.1
                             }
                         }
                     }
@@ -1098,7 +1073,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
         addOrEditDialogCtrl.$inject = ['$scope', '$http', '$rootScope', '$mdDialog', 'user'];
     }])
-    .controller('ManagerAuthCtrl', ['$scope', '$http', '$mdDialog', '$mdEditDialog', '$search', '$timeout', '$rootScope', function ($scope, $http, $mdDialog, $mdEditDialog, $search, $timeout, $rootScope) {
+    .controller('ManagerAuthCtrl', ['$mdToast', '$scope', '$http', '$mdDialog', '$mdEditDialog', '$search', '$timeout', '$rootScope', function ($mdToast, $scope, $http, $mdDialog, $mdEditDialog, $search, $timeout, $rootScope) {
         $scope.selected = [];
         $scope.options = {
             rowSelection: true,
@@ -1131,6 +1106,14 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             page: 1
         };
 
+        $scope.showToast = function(message) {
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent(message)
+                    .position("top right")
+                    .hideDelay(3000)
+            );
+        };
         function success(answer) {
             if ($scope.query.filter) {
                 var data = {data: []};
@@ -1180,8 +1163,9 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             $scope.user.username = $scope.selected[0].username;
             $http.post("managers/" + $scope.user.username, $scope.user).then(function (success) {
                 console.log(success);
+                $scope.showToast(success.data.message);
             }, function (error) {
-                console.log(error);
+                $scope.showToast(error.data.message);
             });
             $mdDialog.hide();
         };
@@ -1321,12 +1305,16 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
 
     }])
-    .controller('SDNCtrl', [
+    .controller('SDNCtrl', ['$route', 'auth', 'user',
         '$scope', '$window', '$mdSidenav', '$timeout', '$mdDialog', '$mdComponentRegistry', 'menu', '$window', '$location', '$rootScope', '$mdUtil', '$http',
-        function ($scope, $window, $mdSidenav, $timeout, $mdDialog, $mdComponentRegistry, menu, $window, $location, $rootScope, $mdUtil, $http) {
+        function ($route, auth, user, $scope, $window, $mdSidenav, $timeout, $mdDialog, $mdComponentRegistry, menu, $window, $location, $rootScope, $mdUtil, $http) {
+
+            $scope.login = login;
+            $scope.logout = logout;
+            $scope.isAuthed = isAuthed;
+            $scope.curruser = "";
 
             $scope.menu = menu;
-
             $scope.path = path;
             $scope.goHome = goHome;
             $scope.openMenu = openMenu;
@@ -1354,39 +1342,11 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 }, 100);
             };
 
-
             // Methods used by menuLink and menuToggle directives
             this.isOpen = isOpen;
             this.isSelected = isSelected;
             this.toggleOpen = toggleOpen;
             this.autoFocusContent = false;
-
-            if ($rootScope.globals.currentUser) {
-                $http.get('/role/' + $rootScope.globals.currentUser.username)
-                    .success(function (response) {
-
-                        console.log(response.user.role);
-                        if(response.user.role === 'admin'){
-                            var m = {
-                                name: '权限管理',
-                                type: 'toggle',
-                                pages: [{
-                                    name: '用户列表',
-                                    url: '/managers/list',
-                                    type: 'link'
-                                }, {
-                                    name: '资源分配',
-                                    url: '/managers/authority',
-                                    type: 'link'
-                                }]
-                            }
-
-                            menu.addmenu(m);
-                        }
-                    });
-            }
-
-
 
             var mainContentArea = document.querySelector("[role='main']");
             var scrollContentEl = mainContentArea.querySelector('md-content[md-scroll-y]');
@@ -1469,7 +1429,95 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             function toggleOpen(section) {
                 menu.toggleSelectSection(section);
             }
+
+            function handleRequest(res) {
+                var token = res.data ? res.data.token : null;
+                if (token) {
+                    if (auth.parseJwt(token).role !== "admin") {
+                        menu.operatormenu();
+                    } else {
+                        menu.operatormenu();
+                        menu.addmenu({
+                            name: '权限管理',
+                            type: 'toggle',
+                            pages: [{
+                                name: '用户列表',
+                                url: '/managers/list',
+                                type: 'link'
+                            }, {
+                                name: '资源分配',
+                                url: '/managers/authority',
+                                type: 'link'
+                            }]
+                        });
+                    }
+                    $scope.curruser = auth.parseJwt(token).username;
+                    // var to = {
+                    //     name: '节点拓扑',
+                    //     url: '/topology',
+                    //     type: 'link'
+                    // };
+
+                    // menu.selectPage(to, to);
+                }
+                // self.message = res.data.message;
+
+            }
+
+            function login() {
+                auth.logout && auth.logout();
+                user.login($scope.user.username, $scope.user.password).then(handleRequest, handleRequest);
+                $timeout(function () {
+                    // 0 ms delay to reload the page.
+                    $route.reload();
+                }, 0);
+            }
+
+            function logout() {
+                auth.logout && auth.logout();
+                $window.location.href = "./";
+
+            }
+
+            function isAuthed() {
+                return auth.isAuthed ? auth.isAuthed() : false
+            }
+
+            // $scope.getQuote = function () {
+            //     user.getQuote()
+            //         .then(handleRequest, handleRequest)
+            // }
         }])
+    .controller('ToastCtrl', function ($scope, $mdToast, $mdDialog) {
+
+        $scope.closeToast = function () {
+            if (isDlgOpen) return;
+
+            $mdToast
+                .hide()
+                .then(function () {
+                    isDlgOpen = false;
+                });
+        };
+
+        $scope.openMoreInfo = function (e) {
+            if (isDlgOpen) return;
+            isDlgOpen = true;
+
+            $mdDialog
+                .show($mdDialog
+                    .alert()
+                    .title('More info goes here.')
+                    .textContent('Something witty.')
+                    .ariaLabel('More info')
+                    .ok('Got it')
+                    .targetEvent(e)
+                )
+                .then(function () {
+                    isDlgOpen = false;
+                })
+        };
+    })
     .filter('nospace', function () {
         return function (value) {
             return (!value) ? '' : value.replace(/ /g, '');

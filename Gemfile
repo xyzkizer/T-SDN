@@ -11,6 +11,8 @@ gem 'compass'
 gem 'thin'
 gem 'data_mapper'
 gem 'dm-mysql-adapter'
+gem 'openssl'
+gem 'jwt'
 
 group :development do
   gem 'sinatra-reloader'

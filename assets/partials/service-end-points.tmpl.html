@@ -17,14 +17,20 @@
         </div>
        <div layout-gt-xs="row">
           <md-input-container class="md-block" flex-gt-xs>
-            <label>NAME</label>
+            <label>名称</label>
             <input ng-model="sep.name[0].value" disabled>
           </md-input-container>
         </div>
        <div layout-gt-xs="row">
           <md-input-container class="md-block" flex-gt-xs>
-            <label>STATE</label>
+            <label>状态</label>
             <input ng-model="sep._statePac.operationalState" disabled>
+          </md-input-container>
+        </div>
+       <div layout-gt-xs="row">
+          <md-input-container class="md-block" flex-gt-xs>
+            <label>关联业务</label>
+            <input ng-model="sep.services[0]" disabled>
           </md-input-container>
         </div>
         <div>

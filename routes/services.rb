@@ -3,17 +3,21 @@ class ServiceController < SDN
   get '/' do
     content_type :json
 
-    @user = Manager.first(:id => session[:user_id])
-    user_services = @user.services.map{|s| s.service_id }
-
+    logger.debug session.inspect
     services = {}
-    services[:data] = []
-    JSON.parse($redis.get(%Q(#{$redis.get("root-topology")}.connService))).each do |uuid|
-      s = JSON.parse($redis.get(uuid))
-      next if @user.username != 'root' and !user_services.include? s['name'][0]['value']
-      services[:data] << s
+    @user = Manager.first(:id => session[:user_id])
+
+    if @user
+      user_services = @user.services.map{|s| s.service_id }
+      services[:data] = []
+      JSON.parse($redis.get(%Q(#{$redis.get("root-topology")}.connService))).each do |uuid|
+        s = JSON.parse($redis.get(uuid))
+        next if @user.username != 'root' and !user_services.include? s['name'][0]['value']
+        s['serviceEndPoints'] = JSON.parse($redis.get(%Q(#{s['name'][0]['value']}.serviceEndPoint)))
+        services[:data] << s
+      end
+      services[:count] = services[:data].length
     end
-    services[:count] = services[:data].length
 
     services.to_json
   end
@@ -53,6 +57,7 @@ class ServiceController < SDN
 
   post '/?' do
     content_type :json
+    logger.debug params
     content = %Q({
          "servicePort": [
            {

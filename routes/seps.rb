@@ -60,6 +60,9 @@ class ServiceEndPointController < SDN
   end
 
   get %r{/(?<name>.+)/?} do
-    $redis.get(%Q(#{params[:name]}))
+    sep = JSON.parse($redis.get(%Q(#{params[:name]})))
+    services = JSON.parse($redis.get(%Q(#{params[:name]}.connService)))
+    sep['services'] = services
+    sep.to_json
   end
 end
