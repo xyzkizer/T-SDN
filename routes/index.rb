@@ -12,12 +12,12 @@ class RootController < SDN
 
   get '/topograph' do
     content_type :json
-    user_topo = $redis.get(%Q(user_#{session['user_id']}.topology}))
+    user_topo = $redis.get(%Q(user_#{session['user_id']}.topology))
     tapi = JSON.parse($redis.get('tapi-net-topology'))
 
     if user_topo and session['user_id'] != "1"
-      user_links = JSON.parse(user_topo).links
-      tapi.links.unshift(*user_links)
+      user_links = JSON.parse(user_topo)['links']
+      tapi['links'] = tapi['links'].unshift(*user_links)
     end
     tapi.to_json
   end

@@ -39,26 +39,33 @@
           </div>
           <div layout-gt-xs="row">
           <div layout-gt-xs="column" flex>
-            <sm-date-time-picker
+            <sm-time-picker-new
                 fname="startAt"
                 label="开始时间"
+                ng-label="开始时间"
                 data-ng-model="register.startAt"
+                value="register.startAt"
                 on-focus
+                no-floating-label="false"
                 is-required="true"
                 format="HH:mm"
                 mode="time"
-            </sm-date-time-picker>
+            </sm-time-picker-new>
+
           </div>
           <div layout-gt-xs="column" flex>
-            <sm-date-time-picker
+            <sm-time-picker-new
                 fname="endAt"
                 label="结束时间"
+                ng-label="结束时间"
                 data-ng-model="register.endAt"
+                value="register.endAt"
                 on-focus
+                no-floating-label="false"
                 is-required="true"
                 format="HH:mm"
                 mode="time"
-            </sm-date-time-picker>
+            </sm-time-picker-new>
           </div>
           <div layout-gt-xs="column" flex>
             <md-switch ng-model="ctrl.everyday" aria-label="everyday"> 每天执行 </md-switch>

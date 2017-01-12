@@ -19,7 +19,7 @@ class ServiceRegisterController < SDN
       @registers << JSON.parse(register % [r.id,r.service,r.rate,r.bandwidth,r.effective_date,r.start_at,r.end_at,r.everyday])
     end
 
-    %Q({"count":#{results.length}, "data":#{@registers.to_json}})
+    %Q({"count":#{@registers.length}, "data":#{@registers.to_json}})
   end
 
   delete %r{/(?<ids>.+)/?} do
@@ -54,6 +54,10 @@ class ServiceRegisterController < SDN
       :startAt => params['startAt'],
       :endAt => params['endAt'],
       :everyday => params['everyday']
+    )
+    Service.create(
+      :service_id => params['service']['name'][0]['value'],
+      :manager_id => session['user_id']
     )
 
     content = '{"connConstraint":{"requestedCapacity":{"committedInformationRate":%s,"totalSize":%s}}}'

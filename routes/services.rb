@@ -18,7 +18,6 @@ class ServiceController < SDN
       end
       services[:count] = services[:data].length
     end
-
     services.to_json
   end
 
