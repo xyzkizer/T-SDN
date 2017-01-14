@@ -6,7 +6,6 @@ require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/content_for'
 require "sinatra/logger"
-require 'rack-flash'
 require 'data_mapper'
 require 'json'
 require 'openssl'
@@ -18,14 +17,12 @@ class SDN < Sinatra::Base
 
   enable :sessions, :logging
   use Rack::MethodOverride
-  use Rack::Flash, :accessorize => [:info, :error, :success], :sweep => true
-  # use Rack::Protection::AuthenticityToken # HTML forms now require: input name="authenticity_token" value=session[:csrf] type="hidden"
   set :public_folder, File.dirname(__FILE__) + '/assets'
   set :views, File.dirname(__FILE__) + '/views'
-  # set :session_secret, "ce0ae1957b02b5b05261" # SecureRandom.hex(128)
   set :cookie_options, { path: '/'}
 
-  Slim::Engine.set_options attr_list_delims: {'(' => ')', '[' => ']'}, code_attr_delims: {'(' => ')', '[' => ']'}
+  enable :logging, :dump_errors, :raise_errors
+  disable :show_exceptions
 
   def self.sprockets
     project_root = File.expand_path(File.dirname(__FILE__))
@@ -35,9 +32,6 @@ class SDN < Sinatra::Base
     assets.append_path('assets/images')
     assets.append_path('assets/fonts')
     assets.append_path('assets/json')
-    # Twitter Bootstrap...
-    #assets.append_path('lib/bootstrap/js')
-    #assets.append_path('lib/bootstrap/css')
     assets
   end
 
@@ -98,24 +92,11 @@ class SDN < Sinatra::Base
   configure :development do
     require "sinatra/reloader"
     register Sinatra::Reloader
+
     also_reload 'routes/**/*.rb'
     also_reload 'views/**/*.rb'
     also_reload 'lib/**/*.rb'
     also_reload 'config/**/*.rb'
-    set :raise_errors, true
-  end
-
-  [:error, :info, :success].each do |key|
-    class_eval "
-    def flash_#{key}(key, now=true)
-      message(key, :#{key}, now)
-    end
-    "
-  end
-
-  def message(key, type=:notice, now=true)
-    hash = now ? flash.now : flash
-    hash[type] = key
   end
 
   def meta(key, value = nil)
@@ -133,11 +114,6 @@ class SDN < Sinatra::Base
     "<#{start}>#{content}</#{name}>"
   end
 
-  def debug_something_with_pry
-    Kernel.binding.pry
-  end
-
-  #error_logger = Logger.new('log/errors.log')
 
   error do
     #e = request.env['sinatra.error']
@@ -158,6 +134,7 @@ end
 
 # Move to config/init/db.rb if you like
 OpenStruct.new(YAML::load(File.open('config/database.yml'))[SDN.environment.to_s].symbolize_keys).tap do |config|
+  DataMapper::Model.raise_on_save_failure = true
   DataMapper::Logger.new($stdout, :debug)
   DataMapper.setup(
     :default,
