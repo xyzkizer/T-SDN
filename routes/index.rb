@@ -15,7 +15,7 @@ class RootController < SDN
     user_topo = $redis.get(%Q(user_#{session['user_id']}.topology))
     tapi = JSON.parse($redis.get('tapi-net-topology'))
 
-    if user_topo and session['user_id'] != "1"
+    if user_topo and session['user_id'] != 1
       user_links = JSON.parse(user_topo)['links']
       tapi['links'] = tapi['links'].unshift(*user_links)
     end

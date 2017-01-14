@@ -7,14 +7,14 @@ class Register
   property :rate,            Integer
   property :bandwidth,       Integer
   property :effective_date,  Date
-  property :startAt,         Time
-  property :endAt,           Time
+  property :startAt,         MySQLTime
+  property :endAt,           MySQLTime
   property :everyday,        Boolean
 
   has n, :tasks
 
   def typecast_to_primitive(startAt)
-    logger.debug startAt
+    puts %Q(XXXXXXXXXXXXXXXXXXX -- #{startAt})
 
   end
 

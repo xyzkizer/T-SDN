@@ -74,7 +74,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
     }])
     .config(['$mdIconProvider', function ($mdIconProvider) {
-
+      $mdIconProvider.fontSet('md', 'material-icons');
     }])
     .config(['$sceDelegateProvider', function ($sceDelegateProvider) {
         $sceDelegateProvider.resourceUrlWhitelist([

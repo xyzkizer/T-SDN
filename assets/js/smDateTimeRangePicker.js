@@ -1723,11 +1723,6 @@ if (typeof moment === 'undefined') {
                 var calenderPane = $element[0].querySelector('.sm-calender-pane');
                 var cElement = angular.element(calenderPane);
                 scope.ngMassagedTempaltePath = picker.massagePath;
-                console.log(scope.mode);
-                console.log(scope.fname);
-                console.log(scope.isRequired);
-                console.log(scope.form);
-                console.log(scope);
                 // check if Pre defined format is supplied
                 scope.format = angular.isUndefined(scope.format) ? 'MM-DD-YYYY' : scope.format;
 

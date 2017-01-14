@@ -67,7 +67,7 @@
 <div ng-hide="isAuthed()" layout="column" layout-align="center center" layout-fill="layout-fill">
   <div class="loginBox md-whiteframe-z1" layout="column">
     <md-toolbar>
-      <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统{{}}</span></h2>
+      <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统</span></h2>
     </md-toolbar>
     <form name="loginform" novalidate ng-submit="login()" role="form" ng-cloak>
 
@@ -95,9 +95,13 @@
             md-is-locked-open="$mdMedia('gt-sm')">
 
   <header class="nav-header">
-    <a ng-href="/" class="docs-logo">
-      <h1 class="docs-logotype md-heading">T-SDN 业务管理</h1>
+    <md-list ng-clock>
+      <md-list-item ng-click="" class="noright">
+      <img src="assets/dxlogo.png" alt="" style="height: 50px;"/><span> </span>
+      <p class="docs-logotype md-heading">TSDN业务管理</p>
     </a>
+      </md-list-item>
+    </md-list>
   </header>
 
   <ul class="skip-links">
