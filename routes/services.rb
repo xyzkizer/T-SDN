@@ -3,22 +3,35 @@ class ServiceController < SDN
   get '/' do
     content_type :json
 
-    logger.debug session.inspect
     services = {}
-    @user = Manager.first(:id => session[:user_id])
+    services[:data] = []
 
-    if @user
-      user_services = @user.services.map{|s| s.service_id }
-      services[:data] = []
-      JSON.parse($redis.get(%Q(#{$redis.get("root-topology")}.connService))).each do |uuid|
-        s = JSON.parse($redis.get(uuid))
-        next if @user.username != 'root' and !user_services.include? s['name'][0]['value']
-        s['serviceEndPoints'] = JSON.parse($redis.get(%Q(#{s['name'][0]['value']}.serviceEndPoint)))
-        services[:data] << s
+    begin
+      @user = Manager.first(:id => session[:user_id])
+      if @user
+        user_services = @user.services.map{|s| s.service_id }
+        JSON.parse($redis.get(%Q(hw.ethService))).each do |uuid|
+          s = JSON.parse($redis.get(uuid))
+          next if @user.role != "admin" and !user_services.include? s['name']
+          s[:type] = "eth"
+          services[:data] << s
+        end
+        JSON.parse($redis.get(%Q(hw.clientService))).each do |uuid|
+          s = JSON.parse($redis.get(uuid))
+          next if @user.role != "admin" and !user_services.include? s['name']
+          s[:type] = "odu"
+          services[:data] << s
+        end
+      else
+        [401, %Q({"message":"user not exists."})]
       end
+    rescue Exception => ex
+      logger.error ex
+    else
+    ensure
       services[:count] = services[:data].length
     end
-    services.to_json
+    [200, services.to_json]
   end
 
   post %r{/(?<name>.+)/?} do

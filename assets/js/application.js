@@ -1,4 +1,4 @@
-angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'ngCookies', 'treeControl', 'promise-tracker'], [
+angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', 'smDateTimeRangePicker', 'ngCookies', 'ivh.treeview', 'treeControl', 'promise-tracker'], [
     '$routeProvider', '$locationProvider', '$mdThemingProvider', '$mdIconProvider',
     function ($routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider) {
 
@@ -89,6 +89,30 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     .config(['$httpProvider', function ($httpProvider) {
         $httpProvider.interceptors.push('authInterceptor');
     }])
+    .config(['ivhTreeviewOptionsProvider', function(ivhTreeviewOptionsProvider) {
+      ivhTreeviewOptionsProvider.set({
+        twistieCollapsedTpl: '<md-icon style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || trvw.isExpanded(node)" md-svg-src="assets/ic_add_circle_outline_black_24px.svg" aria-label="expand"></md-icon>',
+        twistieExpandedTpl: '<md-icon style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || !trvw.isExpanded(node)" md-svg-src="assets/ic_remove_circle_outline_black_24px.svg" aria-label="collopse"></md-icon>',
+        twistieLeafTpl: '&#9679',
+        defaultSelectedState: false,
+        expandToDepth: 1,
+        validate: true,
+        // nodeTpl: [
+        // '<div title="{{trvw.label(node)}}">',
+        //   '<span>',
+        //     '<md-icon style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || trvw.isExpanded(node)" md-svg-src="assets/ic_add_circle_outline_black_24px.svg" aria-label="expand" ivh-treeview-toggle></md-icon>',
+        //     '<md-icon style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || !trvw.isExpanded(node)" md-svg-src="assets/ic_remove_circle_outline_black_24px.svg" aria-label="collopse" ivh-treeview-toggle></md-icon>',
+        //   '</span>',
+        //   '<md-checkbox aria-label="service-end-point" ng-show="trvw.isLeaf(node) && trvw.useCheckboxes()">',
+        //   '</md-checkbox>',
+        //   '<span ng-click="showDetail(node.label)" class="ivh-treeview-node-label" ivh-treeview-toggle>',
+        //    '{{trvw.label(node)}}',
+        //   '</span>',
+        //   '<div ivh-treeview-children></div>',
+        // '</div>'
+        // ].join('')
+      });
+    }])
     .factory('authInterceptor', ['auth', function (auth) {
         return {
             // automatically attach Authorization header
@@ -107,8 +131,8 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 }
 
                 return res;
-            },
-        }
+            }
+        };
 
     }])
     .service('auth', ['$window', function ($window) {
@@ -140,14 +164,14 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             } else {
                 return false;
             }
-        }
+        };
 
     }])
     .service('user', ['$http', 'auth', function ($http, auth) {
         var srvc = this;
         srvc.getQuote = function () {
-            return $http.get('/auth/quote')
-        }
+            return $http.get('/auth/quote');
+        };
 
         srvc.login = function (username, password) {
             return $http.post('/login', {
@@ -157,6 +181,27 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
     }])
+    .directive('treeNode', ['ivhTreeviewMgr', '$http', '$rootScope', function(ivhTreeviewMgr, $http, $rootScope) {
+      return {
+        restrict: 'AE',
+        require: '^ivhTreeview',
+        templateUrl: 'partials/tree-node.tmpl.html',
+        link: function(scope, element, attrs, ctrl) {
+          scope.showDetail = function (name){
+            $http.get('/seps/' + name)
+                .then(
+                    function (answer) {
+                      $rootScope.sep = answer.data;
+                    },
+                    function (error) {
+                    },
+                    function (progress) {
+                    }
+                );
+          };
+        }
+      };
+    }])
     .directive('validate', function () {
         return {
             restrict: 'A',
@@ -164,7 +209,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
             link: function (scope, element, attrs, ctrl) {
                 console.log(scope.sform.$error);
-
             }
         };
     })
@@ -559,7 +603,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             pageSelect: true
         };
         $scope.query = {
-            order: 'service.name[0].value',
+            order: 'service.name',
             limit: 10,
             page: 1
         };
@@ -757,7 +801,10 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
     }])
-    .controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', function ($scope, $rootScope, $http, $mdDialog) {
+    .controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', 'ivhTreeviewBfs', function ($scope, $rootScope, $http, $mdDialog, ivhTreeviewBfs) {
+
+        $scope.selectedNodes = [];
+
         $scope.delete = function (data) {
             data.nodes = [];
         };
@@ -773,6 +820,13 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
         $scope.connect = function (ev) {
+            // ivhTreeviewBfs($scope.tree, function(node) {
+            //   if(!node.children && node.selected) {
+            //     console.log(node);
+            //     console.log("-------------");
+            //   }
+            // });
+
             $mdDialog.show({
                 controller: ServiceDialogCtrl,
                 controllerAs: 'ctrl',
@@ -806,8 +860,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         $scope.promise = $http.get('/seps')
             .then(
                 function (answer) {
-                    $scope.tree = answer.data.topos;
-                    $rootScope.seps = answer.data.seps;
+                    $scope.tree = answer.data;
                 },
                 function (error) {
                 },

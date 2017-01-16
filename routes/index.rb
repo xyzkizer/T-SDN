@@ -12,14 +12,21 @@ class RootController < SDN
 
   get '/topograph' do
     content_type :json
-    user_topo = $redis.get(%Q(user_#{session['user_id']}.topology))
-    tapi = JSON.parse($redis.get('tapi-net-topology'))
-
-    if user_topo and session['user_id'] != 1
-      user_links = JSON.parse(user_topo)['links']
-      tapi['links'] = tapi['links'].unshift(*user_links)
+    begin
+      @user = Manager.first(:id => session['user_id'])
+      if @user and @user.role == 'admin'
+        [200, $redis.get("hw.topology")]
+      elsif @user
+        [200, $redis.get(%Q(user_#{session['user_id']}.topology))]
+      else
+        [200, %Q({"message":"user not exists or data not correct."})]
+      end
+    rescue Exception => ex
+      logger.error ex
+      [500, %Q({"message":"Interval error!"})]
+    else
+    ensure
     end
-    tapi.to_json
   end
 
   get '/role/:username' do

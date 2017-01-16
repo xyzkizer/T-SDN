@@ -17,9 +17,11 @@
   <link href="assets/md-data-table.min.css" rel="stylesheet" type="text/css"/>
   <link href="assets/application.css" media="all" rel="stylesheet">
   <link href="assets/smDateTimeRangePicker.css" media="all" rel="stylesheet">
-  <link href="assets/tree.css" media="all" rel="stylesheet">
+  <!-- <link href="assets/tree.css" media="all" rel="stylesheet"> -->
   <link href="assets/tree-control-attribute.css" media="all" rel="stylesheet">
   <link href="assets/tree-control.css" media="all" rel="stylesheet">
+  <link href="assets/ivh-treeview.css" media="all" rel="stylesheet">
+  <link href="assets/ivh-treeview-theme-basic.css" media="all" rel="stylesheet">
   <style type="text/css">
     @font-face {
       font-family: 'Material Icons';
@@ -62,14 +64,14 @@
 
 </head>
 
-<body class="docs-body" layout="row" ng-cloak>
+<body class="docs-body" layout="row">
 
-<div ng-hide="isAuthed()" layout="column" layout-align="center center" layout-fill="layout-fill">
+<div ng-hide="isAuthed()" layout="column" layout-align="center center" layout-fill="layout-fill" ng-cloak>
   <div class="loginBox md-whiteframe-z1" layout="column">
     <md-toolbar>
       <h2 class="md-toolbar-tools"><span>T-SDN 业务管理系统</span></h2>
     </md-toolbar>
-    <form name="loginform" novalidate ng-submit="login()" role="form" ng-cloak>
+    <form name="loginform" novalidate ng-submit="login()" role="form">
 
       <md-content class="md-padding" layout="column">
         <md-input-container>
@@ -90,9 +92,10 @@
   </div>
 </div>
 
-<md-sidenav ng-show="isAuthed()" class="site-sidenav md-sidenav-left md-whiteframe-z2"
+<md-sidenav ng-show="isAuthed()" 
+            class="site-sidenav md-sidenav-left md-whiteframe-z2"
             md-component-id="left" hide-print
-            md-is-locked-open="$mdMedia('gt-sm')">
+            md-is-locked-open="$mdMedia('gt-sm')" ng-cloak>
 
   <header class="nav-header">
     <md-list ng-clock>
@@ -176,7 +179,7 @@
   </md-content>
 </div>
 
-<!-- <script src="assets/jquery-3.1.1.min.js"></script> -->
+<script src="assets/jquery-3.1.1.min.js"></script>
 <script src="assets/angular.js"></script>
 <script src="assets/angular-animate.min.js"></script>
 <script src="assets/angular-aria.min.js"></script>
@@ -191,6 +194,7 @@
 <script src="assets/smDateTimeRangePicker.js"></script>
 <script src="assets/echarts.min.js"></script>
 <script src="assets/angular-tree-control.js"></script>
+<script src="assets/ivh-treeview.js"></script>
 <script src="assets/promise-tracker.js"></script>
 <script src="assets/application.js"></script>
 

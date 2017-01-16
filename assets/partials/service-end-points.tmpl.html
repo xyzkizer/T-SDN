@@ -1,41 +1,39 @@
 <div layout="row">
-  <div style="padding-left: 1em; padding-top: 1em;" flex="60">
-    <!-- <span class="underline">Topologies</span> -->
-    <span class="underline">Topologies</span>
-    <ul class="tree">
-      <li ng-repeat="data in tree" ng-include="'partials/tree-item.tmpl.html'"></li>
-    </ul>
+  <div flex="50">
+    <div ivh-treeview="tree"
+      ivh-treeview-id-attribute="'name'"
+      ivh-treeview-label-attribute="'name'"
+      ivh-treeview-children-attribute="'nodes'"
+      <script type="text/ng-template">
+        <tree-node></tree-node>
+      </script>
+    </div>
   </div>
+
   <div flex>
   <md-content layout-padding>
     <div style="padding-right: 1em;" >
       <form name="userForm" ng-show="sep">
        <div layout-gt-xs="row">
           <md-input-container class="md-block" flex-gt-xs>
-            <label>UUID</label>
-            <input ng-model="sep.uuid" disabled>
-          </md-input-container>
-        </div>
-       <div layout-gt-xs="row">
-          <md-input-container class="md-block" flex-gt-xs>
             <label>名称</label>
-            <input ng-model="sep.name[0].value" disabled>
+            <input ng-model="sep.name" disabled>
           </md-input-container>
         </div>
        <div layout-gt-xs="row">
           <md-input-container class="md-block" flex-gt-xs>
             <label>状态</label>
-            <input ng-model="sep._statePac.operationalState" disabled>
+            <input ng-model="sep.occupied_status" disabled>
           </md-input-container>
         </div>
        <div layout-gt-xs="row">
           <md-input-container class="md-block" flex-gt-xs>
             <label>关联业务</label>
-            <input ng-model="sep.services[0]" disabled>
+            <input ng-model="sep.services" disabled>
           </md-input-container>
         </div>
         <div>
-          <md-button class="md-raised md-primary" style="width: 100%;" ng-click="connect(sep)" flex>创建业务</md-button>
+          <md-button class="md-raised md-primary" style="width: 100%;" ng-click="connect()" flex>创建业务</md-button>
         </div>
       </form>
     </div>
