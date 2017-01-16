@@ -96,7 +96,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         twistieLeafTpl: '&#9679',
         defaultSelectedState: false,
         expandToDepth: 1,
-        validate: true,
+        validate: false
         // nodeTpl: [
         // '<div title="{{trvw.label(node)}}">',
         //   '<span>',
@@ -803,16 +803,16 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     }])
     .controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', 'ivhTreeviewBfs', function ($scope, $rootScope, $http, $mdDialog, ivhTreeviewBfs) {
 
-        $scope.selectedNodes = [];
-
         $scope.delete = function (data) {
-            data.nodes = [];
+          data.nodes = [];
         };
 
+        $scope.selectedNodes = [];
+
         $scope.add = function (data) {
-            var post = data.nodes.length + 1;
-            var newName = data.name + '-' + post;
-            data.nodes.push({name: newName, expanded: true, nodes: []});
+          var post = data.nodes.length + 1;
+          var newName = data.name + '-' + post;
+          data.nodes.push({name: newName, expanded: true, nodes: []});
         };
 
         $scope.toggle = function (data) {
@@ -826,8 +826,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             //     console.log("-------------");
             //   }
             // });
-
-            $mdDialog.show({
+          $mdDialog.show({
                 controller: ServiceDialogCtrl,
                 controllerAs: 'ctrl',
                 templateUrl: 'partials/sep-connect.tmpl.html',
@@ -835,26 +834,12 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 targetEvent: ev,
                 clickOutsideToClose: true,
                 locals: {title: "创建业务", desc: "选择目标节点，并输入业务数据，创建业务。"}
-            })
-                .then(function (answer) {
-                    $scope.status = 'You said the information was "' + answer + '".';
-                }, function () {
-                    $scope.status = 'You cancelled the dialog.';
-                });
-
-        };
-
-        $scope.showDetail = function (data) {
-            $scope.promise = $http.get('/seps/' + data.name)
-                .then(
-                    function (answer) {
-                        $rootScope.sep = answer.data;
-                    },
-                    function (error) {
-                    },
-                    function (progress) {
-                    }
-                );
+          })
+          .then(function (answer) {
+            $scope.status = 'You said the information was "' + answer + '".';
+          }, function () {
+            $scope.status = 'You cancelled the dialog.';
+          });
         };
 
         $scope.promise = $http.get('/seps')
