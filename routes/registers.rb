@@ -3,113 +3,121 @@ class ServiceRegisterController < SDN
   get '/' do
     content_type :json
 
-    @registers = []
-    adapter = DataMapper.repository(:default).adapter
-    results = adapter.select("SELECT `id`, `service`, `rate`, `bandwidth`, `effective_date`, `start_at`, `end_at`, `everyday` FROM `t_service_register` ORDER BY `id`")
+    registers = {}
+    registers[:data] = []
+    @user = Manager.first(:id => session['user_id'])
 
-    register = '{"id":%s,"service":"%s","rate":%s,"bandwidth":%s,"effective_date":"%s","start_at":"%s", "end_at":"%s","everyday":%s}'
+    begin
 
-    user = Manager.first(:id => session['user_id'])
+      if @user and @user.role == "operator"
+        services = @user.services.map { |s|
+          s.service_id
+        }
+        Register.all.each do |register|
+          next if services.include? register.service
+          registers[:data] << register
+        end
+      elsif @user.role == "admin"
+        registers[:data] = Register.all
+      end
 
-    user_services = Service.all(:manager_id => session['user_id']).map { |s|
-      s.service_id
-    }
-    results.each do |r|
-      next unless user.role == "admin" and user_services.include? r.service
-      @registers << JSON.parse(register % [r.id,r.service,r.rate,r.bandwidth,r.effective_date,r.start_at,r.end_at,r.everyday])
+    rescue Exception => ex
+      logger.error ex
+      # [500, %Q({"message":"select user registers exception."})]
+    else
+    ensure
+      registers[:count] = registers[:data].length
     end
-
-    %Q({"count":#{@registers.length}, "data":#{@registers.to_json}})
+    [200, registers.to_json]
   end
 
   delete %r{/(?<ids>.+)/?} do
     content_type :json
-    logger.debug params.inspect
-
-    # registers = Register.all(:fields => [:id])
-    # registers.each do |r|
-    #   r.tasks(:fields => [:id]).destroy
-    # end
-
-    adapter = DataMapper.repository(:default).adapter
-    adapter.execute("DELETE FROM `t_service_register` where `id` IN (%s)" % params['ids'])
-    adapter.execute("DELETE FROM `t_service_tasklist` where `register_id` IN (%s)" % params['ids'])
-
-    # if deleted.affected_rows > 0
-    [200, %Q({"message":"done!"})]
-    # else
-    #   [500, %Q({"message":"failure!"})]
-    # end
+    begin
+      Register.all(:conditions => [ 'id IN ?', params[:ids].split(',')]).each do |r|
+        r.destroy
+      end
+    rescue Exception => ex
+      logger.error ex
+      [500, %Q({"message":"delete user registers exception."})]
+    else
+    ensure
+    end
+    [200, %Q({"message":"delete user register success."})]
   end
 
   post '/' do
     content_type :json
-    logger.debug params.inspect
-
-    @register = Register.create(
-      :service => params['service']['name'][0]['value'],
-      :rate => params['rate'],
-      :bandwidth => params['bandwidth'],
-      :effective_date => params['date'],
-      :startAt => params['startAt'],
-      :endAt => params['endAt'],
-      :everyday => params['everyday']
-    )
-    Service.create(
-      :service_id => params['service']['name'][0]['value'],
-      :manager_id => session['user_id']
-    )
-
-    content = '{"connConstraint":{"requestedCapacity":{"committedInformationRate":%s,"totalSize":%s}}}'
-    if params['everyday']
-      @register.tasks.create(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_time => params['startAt'],
-        :content => content % [params['rate'], params['bandwidth']],
-        :state => 0
-      )
-
-      @register.tasks.create(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_time => params['endAt'],
-        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
-        :state => 0
-      )
-    else
-      @register.tasks.create(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
+    begin
+      register = Register.create(
+        :service => params['service']['name'],
+        :rate => params['rate'],
+        :bandwidth => params['bandwidth'],
+        :signal_type => params['signal_type'],
         :effective_date => params['date'],
-        :effective_time => params['startAt'],
-        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
-        :state => 0
+        :startAt => params['startAt'],
+        :endAt => params['endAt'],
+        :everyday => params['everyday']
       )
+      oper = "hw_mod_eth_srv"
+      oper = "hw_mod_cli_srv" if params['type'] == "odu"
 
-      @register.tasks.create(
-        :task_type => 'tapi_mod_srv',
-        :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
-        :service_id => params['service']['name'][0]['value'],
-        :effective_date => params['date'],
-        :effective_time => params['endAt'],
-        :content => content % [params['service']['connConstraint']['requestedCapacity']['committedInformationRate'], params['service']['connConstraint']['requestedCapacity']['totalSize']],
-        :state => 0
-      )
-    end
-
-    if @register
-      [200, %Q({"message":"done!"})]
-    else
-      @register.errors.each do |e|
-        logger.debug e
+      if params['type'] == "eth"
+        content = %Q({"bw":#{params['bw']},"pir":#{params['pir']}})
+        content_origin = %Q({"bw":#{params['service']['bw']},"pir":#{params['service']['pir']}})
+      elsif params['type'] == "odu"
+        content = %Q({"signal_type":#{params['signal_type']}})
+        content_origin = %Q({"signal_type":#{params['service']['signal_type']}})
+      else
+        [400, %Q({"message":"create user registers failure, unknown type."})]
       end
-      [500, %Q({"message":"failure!"})]
-    end
 
+      if params['everyday']
+        register.tasks.create(
+          :task_type => oper,
+          :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+          :service_id => params['service']['name'],
+          :effective_time => params['startAt'],
+          :content => content,
+          :state => 0
+        )
+
+        register.tasks.create(
+          :task_type => oper,
+          :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+          :service_id => params['service']['name'],
+          :effective_time => params['endAt'],
+          :content => content_origin,
+          :state => 0
+        )
+      else
+        register.tasks.create(
+          :task_type => oper,
+          :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+          :service_id => params['service']['name'],
+          :effective_date => params['date'],
+          :effective_time => params['startAt'],
+          :content => content,
+          :state => 0
+        )
+
+        register.tasks.create(
+          :task_type => oper,
+          :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
+          :service_id => params['service']['name'],
+          :effective_date => params['date'],
+          :effective_time => params['endAt'],
+          :content => content_origin,
+          :state => 0
+        )
+      end
+
+    rescue Exception => ex
+      logger.error ex
+    else
+    ensure
+    end
+    [200, %Q({"message":"create hw register success!"})]
   end
 
   before do

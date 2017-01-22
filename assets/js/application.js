@@ -92,6 +92,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     .config(['ivhTreeviewOptionsProvider', function(ivhTreeviewOptionsProvider) {
       ivhTreeviewOptionsProvider.set({
         twistieCollapsedTpl: '<md-icon style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || trvw.isExpanded(node)" md-svg-src="assets/ic_add_circle_outline_black_24px.svg" aria-label="expand"></md-icon>',
+        // twistieCollapsedTpl: '<i class="material-icons" style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || trvw.isExpanded(node)" aria-label="expand">add_circle_outline</i>',
         twistieExpandedTpl: '<md-icon style="margin-top: -2px;" ng-hide="trvw.isLeaf(node) || !trvw.isExpanded(node)" md-svg-src="assets/ic_remove_circle_outline_black_24px.svg" aria-label="collopse"></md-icon>',
         twistieLeafTpl: '&#9679',
         defaultSelectedState: false,
@@ -609,7 +610,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
         $scope.logItem = function (item) {
-            console.log($scope.selected);
+            // console.log($scope.selected);
         };
 
         $scope.loadStuff = function () {
@@ -636,7 +637,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
             $mdDialog.show(confirm).then(function () {
                 var names = $scope.selected.map(function (item) {
-                    return item['name'][0]['value'];
+                    return item['name'];
                 });
                 $promise = $http.delete('/services/' + names.join(','))
                     .then(
@@ -701,20 +702,22 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
             self.desc = desc;
             self.isUpdate = isUpdate;
             self.everyday = true;
+            self.type = selectedService[0]['type'];
+            $scope.task = selectedService[0];
 
             self.submit = function (form) {
 
                 $scope.submitted = true;
 
                 if (form.$invalid) {
-                    console.log("register form invalid.");
+                    console.log("form invalid.");
                     return;
                 }
                 if (selectedService.length != 1) {
                     return;
                 }
 
-                $scope.task.name = selectedService[0]['name'][0]['value'];
+                $scope.task.name = selectedService[0]['name'];
 
 
                 $promise = $http.post('/services/' + $scope.task.name, $scope.task)
@@ -761,6 +764,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
             var self = this;
             self.everyday = true;
+            self.type = selectedService[0].type;
 
             self.submit = function (form) {
 
@@ -776,6 +780,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
                 $scope.register.service = selectedService[0]
                 $scope.register.everyday = self.everyday;
+                $scope.register.type = self.type;
 
                 $promise = $http.post('/registers', $scope.register)
                     .then(
@@ -801,13 +806,25 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
     }])
-    .controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', 'ivhTreeviewBfs', function ($scope, $rootScope, $http, $mdDialog, ivhTreeviewBfs) {
+    .controller('SEPCtrl', ['$scope', '$rootScope', '$http', '$mdDialog', function ($scope, $rootScope, $http, $mdDialog) {
 
         $scope.delete = function (data) {
           data.nodes = [];
         };
 
         $scope.selectedNodes = [];
+
+        $scope.changeCallBack = function(node, isSelected) {
+          if(isSelected) {
+            $scope.selectedNodes.push(node.name);
+            $scope.nodeType = node.type;
+          } else {
+            var index = $scope.selectedNodes.indexOf(node.name);
+            if (index > -1) {
+              $scope.selectedNodes.splice(index, 1);
+            }
+          }
+        };
 
         $scope.add = function (data) {
           var post = data.nodes.length + 1;
@@ -820,12 +837,6 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
         $scope.connect = function (ev) {
-            // ivhTreeviewBfs($scope.tree, function(node) {
-            //   if(!node.children && node.selected) {
-            //     console.log(node);
-            //     console.log("-------------");
-            //   }
-            // });
           $mdDialog.show({
                 controller: ServiceDialogCtrl,
                 controllerAs: 'ctrl',
@@ -833,7 +844,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 parent: angular.element(document.body),
                 targetEvent: ev,
                 clickOutsideToClose: true,
-                locals: {title: "创建业务", desc: "选择目标节点，并输入业务数据，创建业务。"}
+                locals: {title: "创建业务", desc: "选择目标节点，并输入业务数据，创建业务。", nodes: $scope.selectedNodes, type:$scope.nodeType}
           })
           .then(function (answer) {
             $scope.status = 'You said the information was "' + answer + '".';
@@ -853,23 +864,19 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 }
             );
 
-        ServiceDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'title', 'desc'];
-        function ServiceDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, title, desc) {
+        ServiceDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'title', 'desc', 'nodes','type'];
+        function ServiceDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, title, desc, nodes, type) {
 
             var self = this;
             self.title = title;
             self.desc = desc;
-            self.seps = $rootScope.seps.map(function (sep) {
-                return {
-                    value: sep.toLowerCase(),
-                    display: sep
-                };
-            });
+            self.type = type;
 
             self.submit = function (form) {
 
                 $scope.submitted = true;
-                $scope.task.from = $rootScope.sep.name[0].value
+                $scope.task.nodes = nodes;
+                $scope.task.type = type;
 
                 if (form.$invalid) {
                     return;
@@ -1226,7 +1233,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         function loadPoint() {
             $http.get("/seps").then(function (answer) {
                 var newTopos = [];
-                angular.copy(answer.data.topos, newTopos);
+                angular.copy(answer.data, newTopos);
                 setNodeArrObjUniqueIndex(1, newTopos)
                 $scope.treedata = newTopos;
             });
@@ -1296,17 +1303,17 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         };
 
         $scope.serviceToggle = function (item) {
-            var idx = $scope.serviceSelected.indexOf(item.name[0].value);
+            var idx = $scope.serviceSelected.indexOf(item.name);
             if (idx > -1) {
                 $scope.serviceSelected.splice(idx, 1);
             } else {
-                $scope.serviceSelected.push(item.name[0].value);
+                $scope.serviceSelected.push(item.name);
             }
             $scope.user.services = angular.copy($scope.serviceSelected);
         };
 
         $scope.serviceExists = function (item) {
-            return $scope.serviceSelected.indexOf(item.name[0].value) > -1;
+            return $scope.serviceSelected.indexOf(item.name) > -1;
         };
 
         $scope.serviceIsIndeterminate = function () {
@@ -1323,9 +1330,9 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 $scope.serviceSelected = [];
             } else if ($scope.serviceSelected.length === 0 || $scope.services.length > 0) {
                 angular.forEach($scope.services, function (_service) {
-                    var idx = $scope.serviceSelected.indexOf(_service.name[0].value);
+                    var idx = $scope.serviceSelected.indexOf(_service.name);
                     if (idx == -1) {
-                        $scope.serviceSelected.push(_service.name[0].value);
+                        $scope.serviceSelected.push(_service.name);
                     }
                 });
             }

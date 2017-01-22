@@ -13,27 +13,19 @@ class ServiceEndPointController < SDN
             "name" => node,
             "nodes" => [
               {
-                "name" => "PKT",
+                "name" => "ETH",
                 "nodes" => JSON.parse($redis.get(%Q(#{node}.pktLink))).reject{|s|
                   @user.role != 'admin' and !user_seps.include? s
                 }.map {|s|
-                  {"name":s}
+                  {"name":s, "type":"eth"}
                 }
               },
               {
-                "name" => "OTN",
-                "nodes" => JSON.parse($redis.get(%Q(#{node}.otnLink))).reject{|s|
-                  @user.role != 'admin' and !user_seps.include? s
-                }.map {|s|
-                  {"name":s}
-                }
-              },
-              {
-                "name" => "ClientPort",
+                "name" => "ODU",
                 "nodes" => JSON.parse($redis.get(%Q(#{node}.clientPort))).reject{|s|
                   @user.role != 'admin' and !user_seps.include? s
                 }.map {|s|
-                  {"name":s}
+                  {"name":s, "type":"odu"}
                 }
               }
             ]

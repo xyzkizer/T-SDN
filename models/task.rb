@@ -8,7 +8,7 @@ class Task
   property :service_id,      String
   property :local_id,        Integer
   property :effective_date,  Date
-  property :effective_time,  Time
+  property :effective_time,  MySQLTime
   property :content,         Text
   property :state,           Integer
   property :register_id,     Integer

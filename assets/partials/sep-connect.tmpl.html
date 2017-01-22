@@ -16,47 +16,144 @@
       <div class="md-dialog-content" flex>
 
         <div style="padding-right: 1em;">
-  <!--         <p>选择目标节点，并输入业务数据，创建业务。</p> -->
           <p>{{ctrl.desc}}</p>
           <div layout-gt-xs="row">
             <md-input-container class="md-block" flex>
-              <input ng-required="true"
+              <input ng-required="!ctrl.isUpdate"
+                     ng-disabled="ctrl.isUpdate"
+                     name="name"
+                     ng-model="task.name"
+                     placeholder="名称"/>
+            </md-input-container>
+            <md-input-container class="md-block" flex>
+              <label>保护类型</label>
+              <md-select name="sla" ng-disabled="ctrl.isUpdate" ng-model="task.sla" ng-required="!ctrl.isUpdate && ctrl.type === 'eth' ">
+                <md-option value="1">永久1+1</md-option>
+                <md-option value="2">重路由</md-option>
+                <md-option value="3">无保护</md-option>
+                <md-option value="4">1+1重路由</md-option>
+                <md-option value="5">静态1+1</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+          <div layout-gt-xs="row" ng-show="ctrl.type == 'eth' ">
+            <md-input-container class="md-block" flex>
+              <input ng-required="!ctrl.isUpdate && ctrl.type === 'eth' "
                      type="number"
                      step="1250"
                      min="0"
-                     name="bandwidth"
-                     ng-model="task.bandwidth"
+                     name="pir"
+                     ng-model="task.pir"
                      placeholder="峰值带宽(MB)"/>
             </md-input-container>
             <md-input-container class="md-block" flex>
-              <input ng-required="true"
-                     name="rate"
+              <input ng-required="!ctrl.isUpdate && ctrl.type === 'eth' "
+                     name="bw"
                      type="number"
                      min="0"
                      step="100"
-                     ng-model="task.rate"
+                     ng-model="task.bw"
                      placeholder="带宽(MB)"/>
             </md-input-container>
           </div>
-          <div layout-gt-xs="row" ng-show="!ctrl.isUpdate" flex>
-            <md-autocomplete
-                md-input-name="to"
-                md-require-match="true"
-                ng-required="!ctrl.isUpdate"
-                md-selected-item="task.to"
-                md-search-text="ctrl.searchText"
-                md-items="item in ctrl.querySearch(ctrl.searchText)"
-                md-item-text="item.display"
-                md-min-length="0"
-                placeholder="输入关键字，选择目标节点..."
-                flex>
-              <md-item-template>
-                <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.display}}</span>
-              </md-item-template>
-              <md-not-found>
-                No SEP matching "{{ctrl.searchText}}" were found.
-              </md-not-found>
-            </md-autocomplete>
+          <div layout-gt-xs="row" ng-show="ctrl.type == 'odu'">
+            <md-input-container class="md-block" flex>
+              <label>信号类型</label>
+              <md-select name="signal_type" ng-model="task.signal_type" ng-required="!ctrl.isUpdate && ctrl.type === 'odu' ">
+                  <md-option value="0"> NULL</md-option>
+                  <md-option value=" 257">GE</md-option>
+                  <md-option value=" 258"> 10GE LAN</md-option>
+                  <md-option value=" 259"> 10GE WAN</md-option>
+                  <md-option value=" 260"> FE</md-option>
+                  <md-option value=" 261"> GE(GFP-T)</md-option>
+                  <md-option value=" 262"> GE_SLICE</md-option>
+                  <md-option value=" 263"> GE(TTT-GMP)</md-option>
+                  <md-option value=" 264"> 40GE</md-option>
+                  <md-option value=" 265"> 100GE</md-option>
+                  <md-option value=" 513"> OTU-1</md-option>
+                  <md-option value=" 514"> OTU-2</md-option>
+                  <md-option value=" 515"> OTU-3</md-option>
+                  <md-option value=" 521"> OUT-4</md-option>
+                  <md-option value=" 516"> OTU-5G</md-option>
+                  <md-option value=" 517"> OTU-3E</md-option>
+                  <md-option value=" 518"> OTU-2E</md-option>
+                  <md-option value=" 528"> ODU-0</md-option>
+                  <md-option value=" 529"> ODU-1</md-option>
+                  <md-option value=" 530"> ODU-2</md-option>
+                  <md-option value=" 531"> ODU-3</md-option>
+                  <md-option value=" 532"> ODU-5G</md-option>
+                  <md-option value=" 534"> ODUflex</md-option>
+                  <md-option value=" 769">STM-1</md-option>
+                  <md-option value=" 770">STM-4</md-option>
+                  <md-option value=" 771"> STM-16</md-option>
+                  <md-option value=" 772"> STM-64</md-option>
+                  <md-option value=" 773">STM-256</md-option>
+                  <md-option value="1025"> OC-3</md-option>
+                  <md-option value="1026"> OC-12</md-option>
+                  <md-option value="1027"> OC-48</md-option>
+                  <md-option value="1028"> OC-192</md-option>
+                  <md-option value="1029"> OC-768</md-option>
+                  <md-option value="1281"> FC-50</md-option>
+                  <md-option value="1282"> FC-100</md-option>
+                  <md-option value="1283"> FC-200</md-option>
+                  <md-option value="1284"> FC-400</md-option>
+                  <md-option value="1285"> FC-1000</md-option>
+                  <md-option value="1286"> FC-1200</md-option>
+                  <md-option value="1288"> FC-100(SLICE)</md-option>
+                  <md-option value="1287"> FC-200(SLICE)</md-option>
+                  <md-option value="1289"> FC-800</md-option>
+                  <md-option value="1290"> FC-1600</md-option>
+                  <md-option value="1537"> FICON</md-option>
+                  <md-option value="1538"> FICON Express</md-option>
+                  <md-option value="1539"> FICON4G</md-option>
+                  <md-option value="1541"> FICON8G</md-option>
+                  <md-option value="1542"> FICON(Slice)</md-option>
+                  <md-option value="1543"> FICON Express(Slice)</md-option>
+                  <md-option value="1793"> HDSDI</md-option>
+                  <md-option value="1794"> HDSDIRBR</md-option>
+                  <md-option value="1795"> 3GSDI</md-option>
+                  <md-option value="1796"> 3GSDIRBR</md-option>
+                  <md-option value="2050"> SDI</md-option>
+                  <md-option value="2049"> DVB_ASI</md-option>
+                  <md-option value="2305"> ESCON</md-option>
+                  <md-option value="2306"> EPON</md-option>
+                  <md-option value="2307"> GPON</md-option>
+                  <md-option value="2308"> EPON_ONU</md-option>
+                  <md-option value="2309"> EPON_OLT</md-option>
+                  <md-option value="2561"> FDDI</md-option>
+                  <md-option value="2817"> ETR</md-option>
+                  <md-option value="2818"> CLO</md-option>
+                  <md-option value="2819"> ISC 1G</md-option>
+                  <md-option value="2820"> ISC 2G</md-option>
+                  <md-option value="3073"> InfiniBand 2.5G</md-option>
+                  <md-option value="3074"> InfiniBand 5niBanG</md-option>
+                  <md-option value="3075"> IBQDR</md-option>
+                  <md-option value="3329"> CPRI2</md-option>
+                  <md-option value="3330"> CPRI1</md-option>
+                  <md-option value="3331"> CPRI3</md-option>
+                  <md-option value="3332"> CPRI4</md-option>
+                  <md-option value="3333"> CPRI5</md-option>
+                  <md-option value="3334"> CPRI6</md-option>
+                  <md-option value="3335"> CPRI7</md-option>
+                  <md-option value="3336">OBSAI4</md-option>
+                  <md-option value="3337"> OBSAI8</md-option>
+                  <md-option value="3338"> CPRI8</md-option>
+                  <md-option value="3585"> CBR10G</md-option>
+                  <md-option value="3841"> PACKAGE</md-option>
+                  <md-option value="65281"> CUSTOM</md-option>
+                  <md-option value="65535"> ANY</md-option>
+              </md-select>
+            </md-input-container>
+            <md-input-container class="md-block"  flex>
+              <input ng-required="!ctrl.isUpdate && ctrl.type === 'odu' "
+                     ng-disabled="ctrl.isUpdate"
+                     name="ovpn_id"
+                     type="number"
+                     min="0"
+                     step="100"
+                     ng-model="task.ovpn_id"
+                     placeholder="OVPN_ID"/>
+            </md-input-container>
           </div>
         </div>
       </div>

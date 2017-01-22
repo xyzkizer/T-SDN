@@ -30,6 +30,7 @@
           <th md-column md-order-by="service"><span>业务</span></th>
           <th md-column md-numeric md-order-by="rate"><span>带宽(MB)</span></th>
           <th md-column md-numeric md-order-by="bandwidth"><span>峰值带宽(MB)</span></th>
+          <th md-column md-numeric md-order-by="signal_type"><span>信号类型</span></th>
           <th md-column md-order-by="effective_date"><span>日期</span></th>
           <th md-column md-order-by="start_at"><span>开始</span></th>
           <th md-column md-order-by="end_at"><span>结束</span></th>
@@ -42,9 +43,10 @@
           <td md-cell>{{register.service}}</td>
           <td md-cell>{{register.rate}}</td>
           <td md-cell>{{register.bandwidth}}</td>
+          <td md-cell>{{register.signal_type}}</td>
           <td md-cell>{{register.effective_date}}</td>
-          <td md-cell>{{register.start_at}}</td>
-          <td md-cell>{{register.end_at}}</td>
+          <td md-cell>{{register.startAt}}</td>
+          <td md-cell>{{register.endAt}}</td>
           <td md-cell>{{register.everyday}}</td>
         </tr>
         </tbody>

@@ -4,7 +4,7 @@
   </span>
   <span ng-if="trvw.useCheckboxes() && trvw.isLeaf(node)" ivh-treeview-checkbox> </span>
   <span ng-click="showDetail(trvw.label(node))" class="ivh-treeview-node-label" ivh-treeview-toggle>
-    {{trvw.label(node)}}
+    {{ ::trvw.label(node) }}
   </span>
-  <div ivh-treeview-children></div>
+  <div ng-if="trvw.isExpanded(node)" ivh-treeview-children></div>
 </div>

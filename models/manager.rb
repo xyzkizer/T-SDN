@@ -10,7 +10,7 @@ class Manager
   property :role,       String
   property :mobile,     String
 
-  has n,   :services
-  has n,   :seps, 'ServiceEndPoint'
+  has n,   :services, :constraint => :destroy
+  has n,   :seps, 'ServiceEndPoint', :constraint => :destroy
 
 end
