@@ -12,7 +12,8 @@ class Service
   property :origin_signal_type, Integer
   property :manager_id,         Integer
   property :service_id,         String
+  property :ovpn_id,         Integer
 
   belongs_to :manager
-
+  belongs_to :ovpn, 'OVPN'
 end

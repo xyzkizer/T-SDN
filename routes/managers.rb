@@ -21,7 +21,17 @@ class ManagerController < SDN
     end
 
   end
+  get '/*/ovpns' do
+    content_type :json
+    @user = Manager.first(:username => params['splat'][0])
 
+    if @user
+      {:data => @user.ovpns }.to_json
+    else
+      {:data => []}
+    end
+
+  end
   get '/*/seps' do
     content_type :json
     @user = Manager.first(:username => params['splat'][0])
@@ -34,11 +44,10 @@ class ManagerController < SDN
 
   post %r{/(?<username>.+)/?} do
     content_type :json
-    logger.debug params
 
     @user = Manager.first(:username => params['username'])
     if @user
-      unless params['services'] or params['bindPoints']
+      unless params['services'] or params['bindPoints'] or params['ovpns']
         @user.update(
           :name => params['name'],
           :password => params['password'],
@@ -58,6 +67,14 @@ class ManagerController < SDN
         @user.seps.destroy
         params['bindPoints'].each do |sep|
           @user.seps.create(:manager_id => @user.id, :sep_id => sep)
+        end
+      end
+
+      if params['ovpns']
+        @user.ovpns.destroy
+        params['ovpns'].each do |ovpn|
+          o = JSON.parse($redis.get(%Q(ovpn_#{ovpn})))
+          @user.ovpns.create(:manager_id => @user.id, :ovpn_id => ovpn, :name => o["name"], :remark => o["remark"])
         end
       end
       @user.errors.each do |e|

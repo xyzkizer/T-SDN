@@ -1,0 +1,48 @@
+<style type="text/css">
+  .legend {
+    color: #3F51B5;
+  }
+
+  .fieldset {
+    border-style: solid;
+    border-width: 1px;
+    height: 100%;
+  }
+
+  .select-all-checkboxes {
+    padding-left: 30px;
+  }
+</style>
+<md-content layout="column" flex ng-controller="TestCtrl">
+  <div class="md-padding">
+    <div layout="row" layout-wrap>
+      <div flex="100" layout="column">
+        <div>
+          <!--
+            In IE, we cannot apply flex directly to <fieldset>
+            @see https://github.com/philipwalton/flexbugs#9-some-html-elements-cant-be-flex-containers
+          -->
+          <fieldset class="fieldset">
+            <legend class="legend">Using &lt;md-checkbox&gt; with the 'indeterminate' attribute</legend>
+            <div layout="row" layout-wrap flex>
+              <div flex-xs flex="50">
+                <md-checkbox aria-label="Select All"
+                             ng-checked="isChecked()"
+                             md-indeterminate="isIndeterminate()"
+                             ng-click="toggleAll()">
+                  <span ng-if="isChecked()">Un-</span>Select All
+                </md-checkbox>
+              </div>
+              <div class="select-all-checkboxes" flex="100"
+                   ng-repeat="item in items">
+                <md-checkbox ng-hide="isChecked()" ng-checked="exists(item, selected)" ng-click="toggle(item, selected)">
+                  {{ item }}
+                </md-checkbox>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</md-content>

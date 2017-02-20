@@ -12,5 +12,6 @@ class Manager
 
   has n,   :services, :constraint => :destroy
   has n,   :seps, 'ServiceEndPoint', :constraint => :destroy
+  has n,   :ovpns, 'OVPN', :constraint => :destroy
 
 end

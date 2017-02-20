@@ -12,7 +12,6 @@ class ServiceController < SDN
         user_services = @user.services.map{|s| s.service_id }
         JSON.parse($redis.get(%Q(hw.ethService))).each do |uuid|
           s = JSON.parse($redis.get(uuid))
-          next if s['role'] != '2'
           next if @user.role != "admin" and !user_services.include? s['name']
           s[:type] = "eth"
           services[:data] << s
@@ -53,8 +52,8 @@ class ServiceController < SDN
         :task_type => oper,
         :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
         :service_id => params[:name],
-        :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
-        :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
+        :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S"),
+        :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S"),
         :content => content,
         :state => 0
       )
@@ -91,8 +90,8 @@ class ServiceController < SDN
           :task_type => oper,
           :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
           :service_id => name,
-          :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
-          :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
+          :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S"),
+          :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S"),
           :state => 0
         ).save
       end
@@ -107,7 +106,6 @@ class ServiceController < SDN
 
   post '/?' do
     content_type :json
-
     begin
       if params[:type] == "eth"
         content = %Q({
@@ -142,8 +140,8 @@ class ServiceController < SDN
         :task_type => oper,
         :user_id => session['user_id'],
         :local_id  => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
-        :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
-        :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
+        :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S"),
+        :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S"),
         :content => content,
         :state => 0
       )

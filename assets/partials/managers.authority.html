@@ -1,160 +1,273 @@
 <style type="text/css">
-    .md-table-def {
-        height: 24px;
-        min-height: 24px;
-    }
+  .md-table-def {
+    height: 24px;
+    min-height: 24px;
+  }
 
-    .md-table-def .md-toolbar-tools {
-        height: 24px;
-    }
+  .md-table-def .md-toolbar-tools {
+    height: 24px;
+  }
 
-    ul li {
-        margin-left: 0px;
-    }
+  ul li {
+    margin-left: 0px;
+  }
 
-    .service-checkbox-fieldset {
-        border-width: 0px;
-        height: 100%;
-    }
+  .service-checkbox-fieldset {
+    border-width: 0px;
+    height: 100%;
+  }
 
-    .select-all-checkboxes {
-        padding-left: 30px;
-    }
+  .select-all-checkboxes {
+    padding-left: 30px;
+  }
 </style>
 <div ng-controller="ManagerAuthCtrl" ng-cloak>
-    <md-content layout="row" flex>
-        <div flex="20" layout="column">
-            <md-card flex>
-                <md-toolbar class="md-table-toolbar md-default alternate">
-                    <div class="md-toolbar-tools">
-                        <span>用户</span>
-                        <div flex></div>
-                        <md-button class="md-icon-button" ng-click="getUsers()">
-                            <md-icon md-svg-src="images/ic_refresh_black.svg">refresh</md-icon>
-                        </md-button>
-                        <md-button class="md-icon-button" ng-click="filter.show = true">
-                            <md-icon>filter_list</md-icon>
-                        </md-button>
-                    </div>
-                </md-toolbar>
-                <md-toolbar class="md-table-def md-table-toolbar md-default" ng-show="filter.show">
-                    <div class="md-toolbar-tools">
-                        <md-icon>search</md-icon>
-                        <form flex="60" name="filter.form">
-                            <input flex="100" type="text" ng-model="query.filter" ng-model-options="filter.options"
-                                   placeholder="username">
-                        </form>
-                        <md-button class="md-icon-button" ng-click="removeFilter()">
-                            <md-icon>close</md-icon>
-                        </md-button>
-                    </div>
-                </md-toolbar>
-
-                <md-table-container>
-                    <table md-table data-md-row-select="options.rowSelection" multiple="{{options.multiSelect}}"
-                           data-ng-model="selected" md-progress="promise">
-                        <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="getUsers">
-                        <tr md-row>
-                            <th md-column md-order-by="name"><span>账号</span></th>
-                        </tr>
-                        </thead>
-                        <tbody md-body>
-                        <tr md-row md-select="user" md-on-select="selectUser" md-on-deselect="deselectUser"
-                            md-select-id="username"
-                            md-auto-select="options.autoSelect"
-                            ng-if="user.username!='root'"
-                            ng-repeat="user in users.data | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
-                            <td md-cell>{{user.username}}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </md-table-container>
-
-                <md-table-pagination md-limit="query.limit" md-page="query.page"
-                                     md-total="{{users.data.length}}"
-                                     md-boundary-links="options.boundaryLinks"
-                                     md-on-paginate="getUsers"></md-table-pagination>
-            </md-card>
-        </div>
-        <div flex="80" layout="column">
-            <form name="authForm" novalidate ng-submit="submit(authForm)" role="authForm" ng-cloak>
-                <md-card>
-                    <md-card-content>
-                        <div layout-gt-xs="row">
-                            <div layout-gt-xs="column" layout-margin-sm flex>
-                                <div layout-gt-xs="row" flex-gt-xs="80">
-                                    <div flex style="height:260px;overflow: auto;">
-                                        <treecontrol class="tree-boot"
-                                                     tree-model="treedata"
-                                                     selected-nodes="selectedNodes"
-                                                     expanded-nodes="expandedNodes"
-                                                     on-selection="showSelected(node, selected, $parentNode)"
-                                                     options="treeOptions">
-                                            {{node.name}}
-                                        </treecontrol>
-                                    </div>
-                                </div>
-                                <div layout-gt-xs="row" flex-gt-xs="20">
-                                    <md-input-container class="md-block" flex>
-                                        <input readonly
-                                               type="text"
-                                               name="bindPoints"
-                                               ng-model="user.bindPoints"
-                                               ng-list
-                                               placeholder="已选择 {{user.bindPoints.length || 0}} 个节点"/>
-                                    </md-input-container>
-                                </div>
-                            </div>
-                            <div layout="column" layout-margin-sm flex>
-                                <div layout-gt-xs="row" flex="80">
-                                    <div layout="row" flex style="height:260px;overflow: auto;">
-                                        <div flex="100" layout="column">
-                                            <div>
-                                                <fieldset class="service-checkbox-fieldset">
-                                                    <div layout="row" layout-wrap="" flex="">
-                                                        <div flex-xs flex="50">
-                                                            <md-checkbox aria-label="Select All"
-                                                                         ng-checked="serviceIsChecked()"
-                                                                         md-indeterminate="serviceIsIndeterminate()"
-                                                                         ng-click="serviceToggleAll()">
-                                                                <span ng-if="serviceIsChecked()">取消</span>全选
-                                                            </md-checkbox>
-                                                        </div>
-                                                        <div class="select-all-checkboxes" flex="100"
-                                                             ng-repeat="service in services">
-                                                            <md-checkbox
-                                                                    ng-model="serviceSelected"
-                                                                    ng-checked="serviceExists(service)"
-                                                                    ng-click="serviceToggle(service)">
-                                                                {{ service.name }}
-                                                            </md-checkbox>
-                                                        </div>
-                                                    </div>
-                                                </fieldset>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div layout-gt-xs="row" flex="20" flex-sm>
-                                    <md-input-container class="md-block" flex>
-                                        <input readonly
-                                               type="text"
-                                               name="services"
-                                               ng-model="user.services"
-                                               ng-list
-                                               placeholder="已选择 {{user.services.length || 0}} 个业务"/>
-                                    </md-input-container>
-                                </div>
-                            </div>
-                        </div>
-                    </md-card-content>
-                    <md-card-actions layout="row" layout-align="center">
-                        <md-button type="submit" aria-label="submit" class="md-primary" ng-disabled="authForm.$invalid">
-                            提交
-                        </md-button>
-                    </md-card-actions>
-                </md-card>
+  <md-content layout="row" flex>
+    <div flex="20" layout="column">
+      <md-card flex>
+        <md-toolbar class="md-table-toolbar md-default alternate">
+          <div class="md-toolbar-tools">
+            <span>用户</span>
+            <div flex></div>
+            <md-button class="md-icon-button" ng-click="getUsers()">
+              <md-icon md-svg-src="images/ic_refresh_black.svg">refresh</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="filter.show = true">
+              <md-icon>filter_list</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-toolbar class="md-table-def md-table-toolbar md-default" ng-show="filter.show">
+          <div class="md-toolbar-tools">
+            <md-icon>search</md-icon>
+            <form flex="60" name="filter.form">
+              <input flex="100" type="text" ng-model="query.filter" ng-model-options="filter.options"
+                     placeholder="username">
             </form>
-        </div>
-    </md-content>
+            <md-button class="md-icon-button" ng-click="removeFilter()">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+
+        <md-table-container>
+          <table md-table data-md-row-select="options.rowSelection" multiple="{{options.multiSelect}}"
+                 data-ng-model="selected" md-progress="promise">
+            <thead ng-if="false" md-head md-order="query.order" md-on-reorder="getUsers">
+            <tr md-row>
+              <th md-column md-order-by="name"><span>账号</span></th>
+            </tr>
+            </thead>
+            <tbody md-body>
+            <tr md-row md-select="user" md-on-select="selectUser" md-on-deselect="deselectUser"
+                md-select-id="username"
+                md-auto-select="options.autoSelect"
+                ng-if="user.username!='root'"
+                ng-repeat="user in users.data | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+              <td md-cell>{{user.username}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+
+        <md-table-pagination md-limit="query.limit" md-page="query.page"
+                             md-total="{{users.data.length}}"
+                             md-boundary-links="options.boundaryLinks"
+                             md-on-paginate="getUsers"></md-table-pagination>
+      </md-card>
+    </div>
+    <div flex="80" layout="column">
+      <form name="authForm" novalidate ng-submit="submit(authForm)" role="authForm" ng-cloak>
+        <md-card>
+          <md-card-content>
+            <md-tabs md-dynamic-height md-border-bottom>
+              <md-tab label="节点">
+                <md-content class="md-padding">
+                  <div layout-gt-xs="row" flex-gt-xs="80">
+                    <div flex style="height:260px;overflow: auto;">
+                      <treecontrol class="tree-boot"
+                                   tree-model="treedata"
+                                   selected-nodes="selectedNodes"
+                                   expanded-nodes="expandedNodes"
+                                   on-selection="showSelected(node, selected, $parentNode)"
+                                   options="treeOptions">
+                        {{node.name}}
+                      </treecontrol>
+                    </div>
+                  </div>
+                  <div layout-gt-xs="row" flex-gt-xs="100">
+                    <md-input-container class="md-block" flex>
+                      <input readonly
+                             type="text"
+                             name="bindPoints"
+                             ng-model="user.bindPoints"
+                             ng-list
+                             placeholder="已选择 {{user.bindPoints.length || 0}} 个节点"/>
+                    </md-input-container>
+                  </div>
+                </md-content>
+              </md-tab>
+              <md-tab label="业务">
+                <md-content class="md-padding">
+                  <div layout-gt-xs="row" flex="80">
+                    <div layout="row" flex style="height:260px;overflow: auto;">
+                      <div flex="100" layout="column">
+                        <div>
+                          <fieldset class="service-checkbox-fieldset">
+                            <div layout="row" layout-wrap="" flex="">
+                              <div flex-xs flex="50">
+                                <md-checkbox aria-label="Select All"
+                                             ng-checked="serviceIsChecked()"
+                                             md-indeterminate="serviceIsIndeterminate()"
+                                             ng-click="serviceToggleAll()">
+                                  <span ng-if="serviceIsChecked()">取消</span>全选
+                                </md-checkbox>
+                              </div>
+                              <div class="select-all-checkboxes" flex="100"
+                                   ng-repeat="service in services">
+                                <md-checkbox
+                                      ng-model="serviceSelected"
+                                      ng-checked="serviceExists(service)"
+                                      ng-click="serviceToggle(service)">
+                                  {{ service.name }}
+                                </md-checkbox>
+                              </div>
+                            </div>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div layout-gt-xs="row" flex="100" flex-sm>
+                    <md-input-container class="md-block" flex>
+                      <input readonly
+                             type="text"
+                             name="services"
+                             ng-model="user.services"
+                             ng-list
+                             placeholder="已选择 {{user.services.length || 0}} 个业务"/>
+                    </md-input-container>
+                  </div>
+                </md-content>
+              </md-tab>
+              <md-tab label="分组">
+                <md-content class="md-padding">
+                  <div layout-gt-xs="row" flex="80">
+                    <div layout="row" flex style="height:260px;overflow: auto;">
+                      <div flex="100" layout="column">
+                        <div>
+                          <fieldset class="service-checkbox-fieldset">
+                            <div layout="row" layout-wrap="" flex="">
+                              <div flex-xs flex="50">
+                                <md-checkbox aria-label="Select All"
+                                             ng-checked="ovpnIsChecked()"
+                                             md-indeterminate="serviceIsIndeterminate()"
+                                             ng-click="ovpnToggleAll()">
+                                  <span ng-if="ovpnIsChecked()">取消</span>全选
+                                </md-checkbox>
+                              </div>
+                              <div class="select-all-checkboxes" flex="100"
+                                   ng-repeat="ovpn in ovpns">
+                                <md-checkbox
+                                      ng-model="ovpnSelected"
+                                      ng-checked="ovpnExists(ovpn)"
+                                      ng-click="ovpnToggle(ovpn)">
+                                  {{ ovpn.name }}
+                                </md-checkbox>
+                              </div>
+                            </div>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div layout-gt-xs="row" flex flex-sm>
+                    <md-input-container class="md-block" flex>
+                      <input readonly
+                             type="text"
+                             name="ovpns"
+                             ng-model="user.ovpns"
+                             ng-list
+                             placeholder="已选择 {{user.ovpns.length || 0}} 个分组"/>
+                    </md-input-container>
+                  </div>
+                </md-content>
+              </md-tab>
+              <!--                         <div layout-gt-xs="row"> -->
+              <!--                             <div layout-gt-xs="column" layout-margin-sm flex> -->
+              <!--                                 <div layout-gt-xs="row" flex-gt-xs="80"> -->
+              <!--                                     <div flex style="height:260px;overflow: auto;"> -->
+              <!--                                         <treecontrol class="tree-boot" -->
+              <!--                                                      tree-model="treedata" -->
+              <!--                                                      selected-nodes="selectedNodes" -->
+              <!--                                                      expanded-nodes="expandedNodes" -->
+              <!--                                                      on-selection="showSelected(node, selected, $parentNode)" -->
+              <!--                                                      options="treeOptions"> -->
+              <!--                                             {{node.name}} -->
+              <!--                                         </treecontrol> -->
+              <!--                                     </div> -->
+              <!--                                 </div> -->
+              <!--                                 <div layout-gt-xs="row" flex-gt-xs="20"> -->
+              <!--                                     <md-input-container class="md-block" flex> -->
+              <!--                                         <input readonly -->
+              <!--                                                type="text" -->
+              <!--                                                name="bindPoints" -->
+              <!--                                                ng-model="user.bindPoints" -->
+              <!--                                                ng-list -->
+              <!--                                                placeholder="已选择 {{user.bindPoints.length || 0}} 个节点"/> -->
+              <!--                                     </md-input-container> -->
+              <!--                                 </div> -->
+              <!--                             </div> -->
+              <!--                             <div layout="column" layout-margin-sm flex> -->
+              <!--                                 <div layout-gt-xs="row" flex="80"> -->
+              <!--                                     <div layout="row" flex style="height:260px;overflow: auto;"> -->
+              <!--                                         <div flex="100" layout="column"> -->
+              <!--                                             <div> -->
+              <!--                                                 <fieldset class="service-checkbox-fieldset"> -->
+              <!--                                                     <div layout="row" layout-wrap="" flex=""> -->
+              <!--                                                         <div flex-xs flex="50"> -->
+              <!--                                                             <md-checkbox aria-label="Select All" -->
+              <!--                                                                          ng-checked="serviceIsChecked()" -->
+              <!--                                                                          md-indeterminate="serviceIsIndeterminate()" -->
+              <!--                                                                          ng-click="serviceToggleAll()"> -->
+              <!--                                                                 <span ng-if="serviceIsChecked()">取消</span>全选 -->
+              <!--                                                             </md-checkbox> -->
+              <!--                                                         </div> -->
+              <!--                                                         <div class="select-all-checkboxes" flex="100" -->
+              <!--                                                              ng-repeat="service in services"> -->
+              <!--                                                             <md-checkbox -->
+              <!--                                                                     ng-model="serviceSelected" -->
+              <!--                                                                     ng-checked="serviceExists(service)" -->
+              <!--                                                                     ng-click="serviceToggle(service)"> -->
+              <!--                                                                 {{ service.name }} -->
+              <!--                                                             </md-checkbox> -->
+              <!--                                                         </div> -->
+              <!--                                                     </div> -->
+              <!--                                                 </fieldset> -->
+              <!--                                             </div> -->
+              <!--                                         </div> -->
+              <!--                                     </div> -->
+              <!--                                 </div> -->
+              <!--                                 <div layout-gt-xs="row" flex="20" flex-sm> -->
+              <!--                                     <md-input-container class="md-block" flex> -->
+              <!--                                         <input readonly -->
+              <!--                                                type="text" -->
+              <!--                                                name="services" -->
+              <!--                                                ng-model="user.services" -->
+              <!--                                                ng-list -->
+              <!--                                                placeholder="已选择 {{user.services.length || 0}} 个业务"/> -->
+              <!--                                     </md-input-container> -->
+              <!--                                 </div> -->
+              <!--                             </div> -->
+              <!--                         </div> -->
+          </md-card-content>
+          <md-card-actions layout="row" layout-align="center">
+            <md-button type="submit" aria-label="submit" class="md-primary" ng-disabled="authForm.$invalid">
+              提交
+            </md-button>
+          </md-card-actions>
+        </md-card>
+      </form>
+    </div>
+  </md-content>
 </div>

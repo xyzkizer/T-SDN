@@ -7,29 +7,33 @@ class ServiceEndPointController < SDN
     @user = Manager.first(:id => session[:user_id])
     begin
       if @user
-        user_seps = @user.seps.map{ |s| s.sep_id }
+        user_seps = @user.seps.map { |s| s.sep_id }
         JSON.parse($redis.get(%Q(hw_tsdn.node))).each do |node|
-          top << {
-            "name" => node,
-            "nodes" => [
-              {
+          eth = $redis.get(%Q(#{node}.pktLink))
+          odu = $redis.get(%Q(#{node}.clientPort))
+
+          enodes = JSON.parse(eth ||= "[]").reject { |s|
+            (@user.role != 'admin' and !user_seps.include? s) or JSON.parse($redis.get(s))["role"] != 1
+          }.map { |s| {"name" => s, "type" => "eth" }}
+
+          onodes = JSON.parse(odu ||= "[]").reject { |s|
+            @user.role != 'admin' and !user_seps.include? s
+          }.map { |s| {"name" => s, "type" => "odu" }}
+
+          nodes = []
+          unless enodes.empty?
+            nodes << {
                 "name" => "ETH",
-                "nodes" => JSON.parse($redis.get(%Q(#{node}.pktLink))).reject{|s|
-                  @user.role != 'admin' and !user_seps.include? s
-                }.map {|s|
-                  {"name":s, "type":"eth"}
-                }
-              },
-              {
+                "nodes" => enodes
+            }
+          end
+          unless onodes.empty?
+            nodes << {
                 "name" => "ODU",
-                "nodes" => JSON.parse($redis.get(%Q(#{node}.clientPort))).reject{|s|
-                  @user.role != 'admin' and !user_seps.include? s
-                }.map {|s|
-                  {"name":s, "type":"odu"}
-                }
-              }
-            ]
-          }
+                "nodes" => onodes
+            }
+          end
+          top << {"name" => node, "nodes" => nodes}
         end
       else
         [401, %Q({"message":"user not exists."})]

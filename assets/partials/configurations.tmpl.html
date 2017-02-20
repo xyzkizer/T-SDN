@@ -35,7 +35,8 @@
             <th md-column md-numeric md-order-by="status"><span>状态</span></th>
             <th md-column md-numeric md-order-by="pir"><span>峰值带宽(MB)</span></th>
             <th md-column md-numeric md-order-by="bw"><span>带宽(MB)</span></th>
-            <th md-column md-numeric md-order-by="signal_type"><span>协议</span></th>
+            <th md-column md-numeric md-order-by="signal_type"><span>信号类型</span></th>
+            <th md-column md-numeric md-order-by="type"><span>协议</span></th>
             <th md-column md-numeric md-order-by="sla"><span>保护类型</span></th>
             <th md-column md-numeric md-order-by="ovpn_id"><span>OVPN-ID</span></th>
           </tr>
@@ -48,8 +49,9 @@
             <td md-cell>{{service.status}}</td>
             <td md-cell>{{service.pir}}</td>
             <td md-cell>{{service.bw}}</td>
-            <td md-cell>{{service.signal_type}}</td>
-            <td md-cell>{{service.sla}}</td>
+            <td md-cell>{{signal_dict[(service.signal_type)]}}</td>
+            <td md-cell>{{service.type}}</td>
+            <td md-cell>{{sla_dict[service.sla]}}</td>
             <td md-cell>{{service.ovpn_id}}</td>
           </tr>
         </tbody>

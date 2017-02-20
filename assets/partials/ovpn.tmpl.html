@@ -1,0 +1,97 @@
+<md-content laout="column" flex ng-controller="OVPNCtrl">
+  <md-card>
+    <md-toolbar class="md-table-toolbar md-default">
+      <div class="md-toolbar-tools">
+        <span>分组</span>
+        <div flex></div>
+        <md-button class="md-icon-button" ng-click="showAddOVPN($event)">
+          <md-icon md-svg-src="images/ic_add_black.svg">add</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" ng-disabled="!selected.length" ng-click="delConfirm()">
+          <md-icon md-svg-src="assets/ic_delete_forever_black_24px.svg">delete</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="loadStuff()">
+          <md-icon md-svg-src="assets/ic_refresh_black.svg">refresh</md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-table-container>
+      <table md-table md-row-select="options.rowSelection" multiple="{{options.multiSelect}}" ng-model="selected" md-progress="promise">
+        <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+          <tr md-row>
+            <th md-column md-order-by="ID"><span>ID</span></th>
+            <th md-column md-order-by="name"><span>名称</span></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row md-select="ovpn" md-on-select="loadServices" md-auto-select="options.autoSelect" ng-repeat="ovpn in ovpns.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+            <td md-cell>{{ovpn.ovpn_id}}</td>
+            <td md-cell>{{ovpn.name}}</td>
+
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+
+    <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page"
+       md-total="{{ovpns.count}}" md-page-select="options.pageSelect"
+       md-boundary-links="options.boundaryLinks"
+       md-on-paginate="logPagination"></md-table-pagination>
+<!-- seperator -->
+  </md-card>
+  <md-card ng-hide="!selected.length">
+  <md-toolbar class="md-table-toolbar md-default" ng-hide="options2.rowSelection && selected2.length">
+    <div class="md-toolbar-tools">
+      <span>分组业务</span>
+      <div flex></div>
+      <md-button class="md-icon-button" ng-click="showServices($event)">
+        <md-icon md-svg-src="images/ic_add_black.svg">add</md-icon>
+      </md-button>
+      <md-button class="md-icon-button" ng-click="loadServices()">
+        <md-icon md-svg-src="assets/ic_refresh_black.svg">refresh</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-toolbar class="md-table-toolbar alternate" ng-show="options2.rowSelection && selected2.length">
+    <div class="md-toolbar-tools">
+      <span>已选中 {{selected2.length}} 条 </span>
+      <div flex></div>
+      <md-button class="md-icon-button" ng-click="delServiceConfirm()">
+        <md-icon md-svg-src="assets/ic_delete_forever_white_24px.svg">delete</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+    <md-table-container>
+      <table md-table md-row-select="options2.rowSelection" multiple="{{options2.multiSelect}}" ng-model="selected2" md-progress="promise">
+        <thead ng-if="!options2.decapitate" md-head md-order="services.name" md-on-reorder="logOrder">
+          <tr md-row>
+            <th md-column md-order-by="name"><span>名称</span></th>
+            <th md-column md-order-by="physical_port[0]"><span>源端口</span></th>
+            <th md-column md-order-by="physical_port[1]"><span>宿端口</span></th>
+            <th md-column md-numeric md-order-by="status"><span>状态</span></th>
+            <th md-column md-numeric md-order-by="pir"><span>峰值带宽(MB)</span></th>
+            <th md-column md-numeric md-order-by="bw"><span>带宽(MB)</span></th>
+            <th md-column md-numeric md-order-by="signal_type"><span>协议</span></th>
+            <th md-column md-numeric md-order-by="sla"><span>保护类型</span></th>
+          </tr>
+        </thead>
+        <tbody md-body>
+          <tr md-row md-select="service" md-on-select="logItem" md-auto-select="true" ng-repeat="service in services.data | filter: filter.search">
+            <td md-cell>{{service.name}}</td>
+            <td md-cell>{{service.physical_port[0]}}</td>
+            <td md-cell>{{service.physical_port[1]}}</td>
+            <td md-cell>{{service.status}}</td>
+            <td md-cell>{{service.pir}}</td>
+            <td md-cell>{{service.bw}}</td>
+            <td md-cell>{{service.signal_type}}</td>
+            <td md-cell>{{service.sla}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+    <md-table-pagination md-limit="query2.limit" md-limit-options="limitOptions2" md-page="query2.page"
+       md-total="{{services.count}}" md-page-select="options2.pageSelect"
+       md-boundary-links="options2.boundaryLinks"
+       md-on-paginate="logPagination"></md-table-pagination>
+  </md-card>
+</md-content>

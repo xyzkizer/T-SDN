@@ -1,0 +1,33 @@
+<md-dialog flex="40" aria-label="创建分组">
+  <form name="uForm" novalidate ng-submit="ctrl.submit(uForm)" role="form" ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>创建分组</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="ctrl.cancel()">
+          <md-icon md-svg-src="images/ic_close_white_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+      <div class="md-dialog-content" flex>
+        <div style="padding-right: 1em;">
+          <div layout-gt-xs="row">
+            <md-input-container class="md-block" flex>
+              <input required ng-maxlength="16" ng-trim="true"
+                     type="text"
+                     name="name"
+                     ng-model="name"
+                     placeholder="分组名称"/>
+            </md-input-container>
+          </div>
+        </div>
+      </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+      <md-button type="submit" aria-label="submit" class="md-primary" ng-disabled="uForm.$invalid">
+        提交
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

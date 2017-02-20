@@ -15,28 +15,25 @@ class RootController < SDN
     begin
       @user = Manager.first(:id => session['user_id'])
       if @user and @user.role == 'admin'
-        body $redis.get('hw.topology')
-        [200]
+        halt [200, $redis.get('hw.topology')]
       elsif @user
-        body $redis.get(%Q(user_#{session['user_id']}.topology))
-        [200]
+        halt [200, $redis.get(%Q(user_#{session['user_id']}.topology))]
       else
-        body %Q({"message":"user not exists or data not correct."})
-        [200]
+        halt [200, %Q({"message":"user not exists or data not correct."})]
       end
     rescue Exception => ex
       logger.error ex
-      body %Q({"message":"Interval error!"})
-      [500]
+      halt [500, %Q({"message":"Interval error!"})]
     else
     ensure
     end
   end
 
   get '/role/:username' do
-    @user = Manager.first(:username => params['username'])
-    if @user
-      [200, %Q({"success":true, "user":#{@user.to_json}})]
+    logger.debug params
+    user = Manager.first(:username => params['username'])
+    if user
+      [200, %Q({"success":true, "user":#{user.to_json}})]
     end
   end
 

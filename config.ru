@@ -24,6 +24,10 @@ map "/seps" do
   run ServiceEndPointController
 end
 
+map "/ovpns" do
+  run OVPNController
+end
+
 map "/services" do
   run ServiceController
 end
