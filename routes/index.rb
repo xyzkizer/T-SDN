@@ -46,9 +46,9 @@ class RootController < SDN
 
     if user and user.password == params['password']
       headers = {
-        exp: Time.now.to_i + 600 #expire in 20 seconds
+        exp: Time.now.to_i + 300 #expire in 20 seconds
       }
-      exp = Time.now.to_i + 600 #expire in 20 seconds
+      exp = Time.now.to_i + 300 #expire in 20 seconds
       @token = JWT.encode({user_id: user.username, role: user.role, exp: exp }, nil, 'none', headers)
       session["access_token"] = @token
       session["user_id"] = user.id

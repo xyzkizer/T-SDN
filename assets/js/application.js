@@ -661,12 +661,31 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
       page: 1
     };
 
+    $scope.selected3 = [];
+
+    $scope.limitOptions3 = [5, 10];
+    $scope.options3 = {
+      rowSelection: true,
+      multiSelect: true,
+      autoSelect: true,
+      decapitate: false,
+      largeEditDialog: false,
+      boundaryLinks: false,
+      limitSelect: true,
+      pageSelect: true
+    };
+    $scope.query3 = {
+      order: 'link.name',
+      limit: 5,
+      page: 1
+    };
     $scope.selectedServices = [];
-    $scope.loadServices = function () {
+    $scope.loadExtends = function () {
       $scope.promise2 = $http.get('/ovpns/' + $scope.selected[0].ovpn_id)
         .then(
           function (answer) {
-            $scope.services = answer.data;
+            $scope.services = answer.data.services;
+            $scope.links = answer.data.links;
           },
           function (error) {
           },
@@ -674,22 +693,21 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
           }
         );
     };
-
-    $scope.showServices = function (ev) {
-      $http.get('/ovpns/services')
+    $scope.showLinks = function (ev) {
+      $http.get('/ovpns/odulinks')
         .then(
           function (response) {
             if (response.status == '200') {
               $scope.submitted = false;
               // $scope.services = response.data;
               $mdDialog.show({
-                controller: GroupServiceCtrl,
+                controller: ODULinkCtrl,
                 controllerAs: 'ctrl',
-                templateUrl: 'partials/show-services-dialog.tmpl.html',
+                templateUrl: 'partials/show-links-dialog.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: ev,
                 clickOutsideToClose: true,
-                locals: {services: response.data.data, ovpnid: $scope.selected[0].ovpn_id}
+                locals: {odulinks: response.data, ovpnid: $scope.selected[0].ovpn_id}
               });
             } else {
 
@@ -706,47 +724,76 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
 
     };
 
-    GroupServiceCtrl.$inject = ['$scope', '$mdDialog', '$http', 'services', 'ovpnid'];
-    function GroupServiceCtrl($scope, $mdDialog, $http, services, ovpnid) {
+    // $scope.showServices = function (ev) {
+    //   $http.get('/ovpns/services')
+    //     .then(
+    //       function (response) {
+    //         if (response.status == '200') {
+    //           $scope.submitted = false;
+    //           // $scope.services = response.data;
+    //           $mdDialog.show({
+    //             controller: GroupServiceCtrl,
+    //             controllerAs: 'ctrl',
+    //             templateUrl: 'partials/show-links-dialog.tmpl.html',
+    //             parent: angular.element(document.body),
+    //             targetEvent: ev,
+    //             clickOutsideToClose: true,
+    //             locals: {services: response.data.data, ovpnid: $scope.selected[0].ovpn_id}
+    //           });
+    //         } else {
+    //
+    //         }
+    //       },
+    //       function (error) {
+    //       },
+    //       function (progress) {
+    //       })
+    //     .finally(function () {
+    //
+    //     });
+    // };
+
+    ODULinkCtrl.$inject = ['$scope', '$mdDialog', '$http', 'odulinks', 'ovpnid'];
+    function ODULinkCtrl($scope, $mdDialog, $http, odulinks, ovpnid) {
       var self = this;
       self.selected = [];
-      self.services = services;
+      self.odulinks = odulinks;
 
       self.exists = function (item, list) {
-        return list.indexOf(item.name) > -1;
+        return list.indexOf(item) > -1;
       };
       self.toggle = function (item, list) {
-        var idx = list.indexOf(item.name);
+        var idx = list.indexOf(item);
         if (idx > -1) {
           list.splice(idx, 1);
         }
         else {
-          list.push(item.name);
+          list.push(item);
         }
       };
       self.exists = function (item, list) {
-        return list.indexOf(item.name) > -1;
+        return list.indexOf(item) > -1;
       };
 
       self.isIndeterminate = function () {
         return (self.selected.length !== 0 &&
-        self.selected.length !== self.services.length);
+        self.selected.length !== self.odulinks.length);
       };
 
       self.isChecked = function () {
-        return self.selected.length === self.services.length;
+        return self.selected.length === self.odulinks.length;
       };
 
       self.toggleAll = function () {
-        if (self.selected.length === self.services.length) {
+        if (self.selected.length === self.odulinks.length) {
           self.selected = [];
         } else if (self.selected.length === 0 || self.selected.length > 0) {
-          self.selected = self.services.slice(0);
+          self.selected = self.odulinks.slice(0);
         }
       };
       self.submit = function (form) {
         $scope.submitted = true;
-        $promise = $http.post('/ovpns/services', {services: self.selected, id: ovpnid})
+        $promise = $http.post('/ovpns/odulinks', {odulinks: self.selected, id: ovpnid})
           .then(
             function (response) {
               if (response.status == '200') {
@@ -890,6 +937,60 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         $scope.status = 'cancel';
       });
     };
+    $scope.delLinkConfirm = function (ev) {
+      var confirm = $mdDialog.confirm()
+        .title('删除分组资源?')
+        .textContent('删除为所选分组分配的资源。')
+        .ariaLabel('confirm delete')
+        .targetEvent(ev)
+        .ok('确定')
+        .cancel('取消');
+
+      $mdDialog.show(confirm).then(function () {
+        var names = $scope.selected3.map(function (item) {
+          return item['name'];
+        });
+        $promise = $http({
+          method: 'DELETE',
+          url: '/ovpns/odulinks/' + $scope.selected[0].ovpn_id,
+          data:  {links:names}
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+          if (response.status == '200') {
+            $scope.submitted = false;
+          } else {
+
+          }
+          $mdDialog.cancel();
+
+        }, function errorCallback(response) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          $mdDialog.cancel();
+
+        });
+        // $promise = $http.delete('/ovpns/odulinks/' + $scope.selected[0].ovpn_id + '/', {links:names})
+        //   .then(
+        //     function (response) {
+        //       if (response.status == '200') {
+        //         $scope.submitted = false;
+        //       } else {
+        //
+        //       }
+        //     },
+        //     function (error) {
+        //     },
+        //     function (progress) {
+        //     })
+        //   .finally(function () {
+        //     $mdDialog.cancel();
+        //   });
+
+      }, function () {
+        $scope.status = 'cancel';
+      });
+    };
 
   }])
   .controller('ServiceCtrl', ['$scope', '$http', '$mdDialog', function ($scope, $http, $mdDialog) {
@@ -914,88 +1015,88 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     };
 
     $scope.signal_dict = new Array();
-    $scope.signal_dict[257]="GE";
-    $scope.signal_dict[258]="10GE LAN";
-    $scope.signal_dict[259]="10GE WAN";
-    $scope.signal_dict[260]="FE";
-    $scope.signal_dict[261]="GE(GFP-T)";
-    $scope.signal_dict[262]="GE_SLICE";
-    $scope.signal_dict[263]="GE(TTT-GMP)";
-    $scope.signal_dict[264]="40GE";
-    $scope.signal_dict[265]="100GE";
-    $scope.signal_dict[513]="OTU-1";
-    $scope.signal_dict[514]="OTU-2";
-    $scope.signal_dict[515]="OTU-3";
-    $scope.signal_dict[521]="OUT-4";
-    $scope.signal_dict[516]="OTU-5G";
-    $scope.signal_dict[517]="OTU-3E";
-    $scope.signal_dict[518]="OTU-2E";
-    $scope.signal_dict[528]="ODU-0";
-    $scope.signal_dict[529]="ODU-1";
-    $scope.signal_dict[530]="ODU-2";
-    $scope.signal_dict[531]="ODU-3";
-    $scope.signal_dict[532]="ODU-5G";
-    $scope.signal_dict[534]="ODUflex";
-    $scope.signal_dict[769]="STM-1";
-    $scope.signal_dict[770]="STM-4";
-    $scope.signal_dict[771]="STM-16";
-    $scope.signal_dict[772]="STM-64";
-    $scope.signal_dict[773]="STM-256";
-    $scope.signal_dict[1025]="OC-3";
-    $scope.signal_dict[1026]="OC-12";
-    $scope.signal_dict[1027]="OC-48";
-    $scope.signal_dict[1028]="OC-192";
-    $scope.signal_dict[1029]="OC-768";
-    $scope.signal_dict[1281]="FC-50";
-    $scope.signal_dict[1282]="FC-100";
-    $scope.signal_dict[1283]="FC-200";
-    $scope.signal_dict[1284]="FC-400";
-    $scope.signal_dict[1285]="FC-1000";
-    $scope.signal_dict[1286]="FC-1200";
-    $scope.signal_dict[1288]="FC-100(SLICE)";
-    $scope.signal_dict[1287]="FC-200(SLICE)";
-    $scope.signal_dict[1289]="FC-800";
-    $scope.signal_dict[1290]="FC-1600";
-    $scope.signal_dict[1537]="FICON";
-    $scope.signal_dict[1538]="FICON Express";
-    $scope.signal_dict[1539]="FICON4G";
-    $scope.signal_dict[1541]="FICON8G";
-    $scope.signal_dict[1542]="FICON(Slice)";
-    $scope.signal_dict[1543]="FICON Express(Slice)";
-    $scope.signal_dict[1793]="HDSDI";
-    $scope.signal_dict[1794]="HDSDIRBR";
-    $scope.signal_dict[1795]="3GSDI";
-    $scope.signal_dict[1796]="3GSDIRBR";
-    $scope.signal_dict[2050]="SDI";
-    $scope.signal_dict[2049]="DVB_ASI";
-    $scope.signal_dict[2305]="ESCON";
-    $scope.signal_dict[2306]="EPON";
-    $scope.signal_dict[2307]="GPON";
-    $scope.signal_dict[2308]="EPON_ONU";
-    $scope.signal_dict[2309]="EPON_OLT";
-    $scope.signal_dict[2561]="FDDI";
-    $scope.signal_dict[2817]="ETR";
-    $scope.signal_dict[2818]="CLO";
-    $scope.signal_dict[2819]="ISC 1G";
-    $scope.signal_dict[2820]="ISC 2G";
-    $scope.signal_dict[3073]="InfiniBand 2.5G";
-    $scope.signal_dict[3074]="InfiniBand 5niBanG";
-    $scope.signal_dict[3075]="IBQDR";
-    $scope.signal_dict[3329]="CPRI2";
-    $scope.signal_dict[3330]="CPRI1";
-    $scope.signal_dict[3331]="CPRI3";
-    $scope.signal_dict[3332]="CPRI4";
-    $scope.signal_dict[3333]="CPRI5";
-    $scope.signal_dict[3334]="CPRI6";
-    $scope.signal_dict[3335]="CPRI7";
-    $scope.signal_dict[3336]="OBSAI4";
-    $scope.signal_dict[3337]="OBSAI8";
-    $scope.signal_dict[3338]="CPRI8";
-    $scope.signal_dict[3585]="CBR10G";
-    $scope.signal_dict[3841]="PACKAGE";
-    $scope.signal_dict[65281]="CUSTOM";
-    $scope.signal_dict[0]="NULL";
-    $scope.signal_dict[65535]="ANY";
+    $scope.signal_dict[257] = "GE";
+    $scope.signal_dict[258] = "10GE LAN";
+    $scope.signal_dict[259] = "10GE WAN";
+    $scope.signal_dict[260] = "FE";
+    $scope.signal_dict[261] = "GE(GFP-T)";
+    $scope.signal_dict[262] = "GE_SLICE";
+    $scope.signal_dict[263] = "GE(TTT-GMP)";
+    $scope.signal_dict[264] = "40GE";
+    $scope.signal_dict[265] = "100GE";
+    $scope.signal_dict[513] = "OTU-1";
+    $scope.signal_dict[514] = "OTU-2";
+    $scope.signal_dict[515] = "OTU-3";
+    $scope.signal_dict[521] = "OUT-4";
+    $scope.signal_dict[516] = "OTU-5G";
+    $scope.signal_dict[517] = "OTU-3E";
+    $scope.signal_dict[518] = "OTU-2E";
+    $scope.signal_dict[528] = "ODU-0";
+    $scope.signal_dict[529] = "ODU-1";
+    $scope.signal_dict[530] = "ODU-2";
+    $scope.signal_dict[531] = "ODU-3";
+    $scope.signal_dict[532] = "ODU-5G";
+    $scope.signal_dict[534] = "ODUflex";
+    $scope.signal_dict[769] = "STM-1";
+    $scope.signal_dict[770] = "STM-4";
+    $scope.signal_dict[771] = "STM-16";
+    $scope.signal_dict[772] = "STM-64";
+    $scope.signal_dict[773] = "STM-256";
+    $scope.signal_dict[1025] = "OC-3";
+    $scope.signal_dict[1026] = "OC-12";
+    $scope.signal_dict[1027] = "OC-48";
+    $scope.signal_dict[1028] = "OC-192";
+    $scope.signal_dict[1029] = "OC-768";
+    $scope.signal_dict[1281] = "FC-50";
+    $scope.signal_dict[1282] = "FC-100";
+    $scope.signal_dict[1283] = "FC-200";
+    $scope.signal_dict[1284] = "FC-400";
+    $scope.signal_dict[1285] = "FC-1000";
+    $scope.signal_dict[1286] = "FC-1200";
+    $scope.signal_dict[1288] = "FC-100(SLICE)";
+    $scope.signal_dict[1287] = "FC-200(SLICE)";
+    $scope.signal_dict[1289] = "FC-800";
+    $scope.signal_dict[1290] = "FC-1600";
+    $scope.signal_dict[1537] = "FICON";
+    $scope.signal_dict[1538] = "FICON Express";
+    $scope.signal_dict[1539] = "FICON4G";
+    $scope.signal_dict[1541] = "FICON8G";
+    $scope.signal_dict[1542] = "FICON(Slice)";
+    $scope.signal_dict[1543] = "FICON Express(Slice)";
+    $scope.signal_dict[1793] = "HDSDI";
+    $scope.signal_dict[1794] = "HDSDIRBR";
+    $scope.signal_dict[1795] = "3GSDI";
+    $scope.signal_dict[1796] = "3GSDIRBR";
+    $scope.signal_dict[2050] = "SDI";
+    $scope.signal_dict[2049] = "DVB_ASI";
+    $scope.signal_dict[2305] = "ESCON";
+    $scope.signal_dict[2306] = "EPON";
+    $scope.signal_dict[2307] = "GPON";
+    $scope.signal_dict[2308] = "EPON_ONU";
+    $scope.signal_dict[2309] = "EPON_OLT";
+    $scope.signal_dict[2561] = "FDDI";
+    $scope.signal_dict[2817] = "ETR";
+    $scope.signal_dict[2818] = "CLO";
+    $scope.signal_dict[2819] = "ISC 1G";
+    $scope.signal_dict[2820] = "ISC 2G";
+    $scope.signal_dict[3073] = "InfiniBand 2.5G";
+    $scope.signal_dict[3074] = "InfiniBand 5niBanG";
+    $scope.signal_dict[3075] = "IBQDR";
+    $scope.signal_dict[3329] = "CPRI2";
+    $scope.signal_dict[3330] = "CPRI1";
+    $scope.signal_dict[3331] = "CPRI3";
+    $scope.signal_dict[3332] = "CPRI4";
+    $scope.signal_dict[3333] = "CPRI5";
+    $scope.signal_dict[3334] = "CPRI6";
+    $scope.signal_dict[3335] = "CPRI7";
+    $scope.signal_dict[3336] = "OBSAI4";
+    $scope.signal_dict[3337] = "OBSAI8";
+    $scope.signal_dict[3338] = "CPRI8";
+    $scope.signal_dict[3585] = "CBR10G";
+    $scope.signal_dict[3841] = "PACKAGE";
+    $scope.signal_dict[65281] = "CUSTOM";
+    $scope.signal_dict[0] = "NULL";
+    $scope.signal_dict[65535] = "ANY";
 
     $scope.sla_dict = new Array();
     $scope.sla_dict[1] = "永久";
@@ -1089,8 +1190,9 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
           $scope.status = 'You cancelled the dialog.';
         });
     };
-    ServiceDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'smDateTimePicker', 'selectedService', 'title', 'desc', 'isUpdate'];
-    function ServiceDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, smDateTimePicker, selectedService, title, desc, isUpdate) {
+
+    ServiceDialogCtrl.$inject = ['$scope', '$mdDialog', '$http', 'selectedService', 'title', 'desc', 'isUpdate'];
+    function ServiceDialogCtrl($scope, $mdDialog, $http, selectedService, title, desc, isUpdate) {
 
       var self = this;
       self.title = title;
@@ -1230,7 +1332,16 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     $scope.toggle = function (data) {
       data.expanded = !data.expanded;
     };
-
+    $http.get('/ovpns')
+      .then(
+        function (answer) {
+          $scope.ovpns = answer.data.data;
+        },
+        function (error) {
+        },
+        function (progress) {
+        }
+      );
     $scope.connect = function (ev) {
       $mdDialog.show({
         controller: ServiceDialogCtrl,
@@ -1243,7 +1354,8 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
           title: "创建业务",
           desc: "选择目标节点，并输入业务数据，创建业务。",
           nodes: $scope.selectedNodes,
-          type: $scope.nodeType
+          type: $scope.nodeType,
+          ovpns: $scope.ovpns
         }
       })
         .then(function (answer) {
@@ -1264,13 +1376,14 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         }
       );
 
-    ServiceDialogCtrl.$inject = ['$scope', '$rootScope', '$mdDialog', '$http', 'promiseTracker', '$timeout', 'title', 'desc', 'nodes', 'type'];
-    function ServiceDialogCtrl($scope, $rootScope, $mdDialog, $http, promiseTracker, $timeout, title, desc, nodes, type) {
+    ServiceDialogCtrl.$inject = ['$scope', '$mdDialog', '$http', 'title', 'desc', 'nodes', 'type', 'ovpns'];
+    function ServiceDialogCtrl($scope, $mdDialog, $http, title, desc, nodes, type, ovpns) {
 
       var self = this;
       self.title = title;
       self.desc = desc;
       self.type = type;
+      self.ovpns = ovpns;
 
       self.submit = function (form) {
 
@@ -2062,9 +2175,9 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     return search;
   })
   .controller('TestCtrl', ['$scope', function ($scope) {
-    $scope.items = [1, 2, 3, 4, 5];
-    $scope.selected = [1];
-    $scope.toggle = function (item, list) {
+    $scope.odulinks = [{'name': 'A', data: [1, 2, 3]}, {'name': 'B', data: [4, 5, 6]}, {'name': 'C', data: [7, 8, 9]}];
+    $scope.selected = [];
+    $scope.check = function(item, list) {
       var idx = list.indexOf(item);
       if (idx > -1) {
         list.splice(idx, 1);
@@ -2073,26 +2186,18 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         list.push(item);
       }
     };
+    $scope.toggle = function (repeat) {
+      if (repeat.isCheck) {
+        repeat.isCheck = false;
+      } else {
+        repeat.isCheck = true;
+      }
+
+
+    };
 
     $scope.exists = function (item, list) {
       return list.indexOf(item) > -1;
-    };
-
-    $scope.isIndeterminate = function () {
-      return ($scope.selected.length !== 0 &&
-      $scope.selected.length !== $scope.items.length);
-    };
-
-    $scope.isChecked = function () {
-      return $scope.selected.length === $scope.items.length;
-    };
-
-    $scope.toggleAll = function () {
-      if ($scope.selected.length === $scope.items.length) {
-        $scope.selected = [];
-      } else if ($scope.selected.length === 0 || $scope.selected.length > 0) {
-        $scope.selected = $scope.items.slice(0);
-      }
     };
   }])
   .directive('test', function () {

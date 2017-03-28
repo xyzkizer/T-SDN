@@ -24,18 +24,17 @@
           -->
           <fieldset class="fieldset">
             <legend class="legend">Using &lt;md-checkbox&gt; with the 'indeterminate' attribute</legend>
-            <div layout="row" layout-wrap flex>
+            <div layout="row" ng-repeat="node in odulinks" layout-wrap flex>
               <div flex-xs flex="50">
                 <md-checkbox aria-label="Select All"
-                             ng-checked="isChecked()"
-                             md-indeterminate="isIndeterminate()"
-                             ng-click="toggleAll()">
-                  <span ng-if="isChecked()">Un-</span>Select All
+                             md-indeterminate="isCheck"
+                             ng-click="toggle(this)">
+                  {{ node.name }}
                 </md-checkbox>
               </div>
               <div class="select-all-checkboxes" flex="100"
-                   ng-repeat="item in items">
-                <md-checkbox ng-hide="isChecked()" ng-checked="exists(item, selected)" ng-click="toggle(item, selected)">
+                   ng-repeat="item in node.data">
+                <md-checkbox ng-hide="isCheck" ng-checked="exists(item, selected)" ng-click="check(item, selected)">
                   {{ item }}
                 </md-checkbox>
               </div>

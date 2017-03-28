@@ -145,14 +145,18 @@
               </md-select>
             </md-input-container>
             <md-input-container class="md-block"  flex>
-              <input ng-required="!ctrl.isUpdate && ctrl.type === 'odu' "
-                     ng-disabled="ctrl.isUpdate"
-                     name="ovpn_id"
-                     type="number"
-                     min="0"
-                     step="100"
-                     ng-model="task.ovpn_id"
-                     placeholder="OVPN_ID"/>
+              <label>OVPN</label>
+              <md-select name="ovpn_id" ng-model="task.ovpn_id" ng-required="!ctrl.isUpdate && ctrl.type === 'odu' ">
+                <md-option ng-value="ovpn.ovpn_id" ng-repeat="ovpn in ctrl.ovpns">{{ ovpn.name }}</md-option>
+              </md-select>
+              <!--<input ng-required="!ctrl.isUpdate && ctrl.type === 'odu' "-->
+                     <!--ng-disabled="ctrl.isUpdate"-->
+                     <!--name="ovpn_id"-->
+                     <!--type="number"-->
+                     <!--min="0"-->
+                     <!--step="100"-->
+                     <!--ng-model="task.ovpn_id"-->
+                     <!--placeholder="OVPN_ID"/>-->
             </md-input-container>
           </div>
         </div>

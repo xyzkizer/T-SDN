@@ -41,26 +41,26 @@ class SDN < Sinatra::Base
     # protected just does a redirect if we don't have a valid token
     def protected!
       return if authorized?
-      # redirect to('/login')
     end
 
     def extract_token
       # check for the access_token header
-      token = request.env["access_token"]
-      if token
-        return token
+      if request.env["HTTP_AUTHORIZATION"]
+        return request.env["HTTP_AUTHORIZATION"][7..-1]
       end
 
       # or the form parameter _access_token
-      token = request["access_token"]
-      if token
-        return token
-      end
+      # token = request["access_token"]
+      # if token
+      #   return token
+      # end
+
       # or check the session for the access_token
-      token = session["access_token"]
-      if token
-        return token
-      end
+      # token = session["access_token"]
+      # if token
+      #   return token
+      # end
+
       return nil
     end
 
@@ -143,5 +143,5 @@ OpenStruct.new(YAML::load(File.open('config/database.yml'))[SDN.environment.to_s
   Dir[File.join('models', '**/*.rb')].each do |file| require_relative file end
 end
 
-$redis = Redis.new(:host => '127.0.0.1', :port => 6378)
-# $redis = Redis.new(:host => '132.122.237.248', :port => 6379)
+# $redis = Redis.new(:host => '127.0.0.1', :port => 6378)
+$redis = Redis.new(:host => '132.122.237.248', :port => 6379)

@@ -1,9 +1,9 @@
-<md-dialog flex="40" aria-label="添加业务">
+<md-dialog flex="40" aria-label="添加资源">
   <form name="uForm" novalidate ng-submit="ctrl.submit(uForm)" role="form" ng-cloak>
 
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>添加业务</h2>
+        <h2>添加资源</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="ctrl.cancel()">
           <md-icon md-svg-src="images/ic_close_white_24px.svg" aria-label="Close dialog"></md-icon>
@@ -13,11 +13,11 @@
     <md-dialog-content>
       <div layout-gt-xs="row" flex style="height:300px; overflow: auto;">
         <fieldset style="border-width:0; margin-left: 45px;">
-          <div flex="100" ng-repeat="service in ctrl.services">
+          <div flex="100" ng-repeat="link in ctrl.odulinks">
             <md-checkbox ng-model="selected"
-                         ng-checked="ctrl.exists(service, ctrl.selected)"
-                         ng-click="ctrl.toggle(service, ctrl.selected)">
-              {{ service.name }}
+                         ng-checked="ctrl.exists(link, ctrl.selected)"
+                         ng-click="ctrl.toggle(link, ctrl.selected)">
+              {{ link }}
             </md-checkbox>
           </div>
         </fieldset>

@@ -1,8 +1,8 @@
 class ServiceRegisterController < SDN
 
   get '/' do
+    protected!
     content_type :json
-
     registers = {}
     registers[:data] = []
     @user = Manager.first(:id => session['user_id'])
@@ -14,7 +14,7 @@ class ServiceRegisterController < SDN
           s.service_id
         }
         Register.all.each do |register|
-          next if services.include? register.service
+          next unless services.include? register.service
           registers[:data] << register
         end
       elsif @user.role == "admin"
