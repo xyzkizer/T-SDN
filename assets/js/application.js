@@ -681,6 +681,8 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     };
     $scope.selectedServices = [];
     $scope.loadExtends = function () {
+      $scope.selected2 = [];
+      $scope.selected3 = [];
       $scope.promise2 = $http.get('/ovpns/' + $scope.selected[0].ovpn_id)
         .then(
           function (answer) {
@@ -693,6 +695,49 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
           }
         );
     };
+    $scope.modres = function (ev) {
+      $mdDialog.show({
+        controller: MODResCtrl,
+        controllerAs: 'ctrl',
+        templateUrl: 'partials/mod-res-dialog.tmpl.html',
+        parent: angular.element(document.body),
+        targetEvent: ev,
+        clickOutsideToClose: true,
+        locals: {title: "修改资源", ovpnid: $scope.selected[0].ovpn_id, target: $scope.selected3}
+      });
+    };
+    MODResCtrl.$inject = ['$scope', '$mdDialog', '$http', 'ovpnid', 'title', 'target'];
+    function MODResCtrl($scope, $mdDialog, $http, ovpnid, title, target) {
+      var self = this;
+      self.rate = 0;
+      self.title = title;
+      self.target = target;
+
+      self.submit = function (form) {
+        $scope.submitted = true;
+        $promise = $http.patch('/ovpns/odulinks', {rate: self.rate, id: ovpnid, target: target})
+          .then(
+            function (response) {
+              if (response.status == '200') {
+                $scope.submitted = false;
+              } else {
+
+              }
+            },
+            function (error) {
+            },
+            function (progress) {
+            })
+          .finally(function () {
+            $mdDialog.cancel();
+          });
+      };
+
+      self.cancel = function () {
+        $mdDialog.cancel();
+      };
+    }
+
     $scope.showLinks = function (ev) {
       $http.get('/ovpns/odulinks')
         .then(
@@ -707,7 +752,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
                 parent: angular.element(document.body),
                 targetEvent: ev,
                 clickOutsideToClose: true,
-                locals: {odulinks: response.data, ovpnid: $scope.selected[0].ovpn_id}
+                locals: {title: "新增资源", odulinks: response.data, ovpnid: $scope.selected[0].ovpn_id}
               });
             } else {
 
@@ -753,47 +798,29 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
     //     });
     // };
 
-    ODULinkCtrl.$inject = ['$scope', '$mdDialog', '$http', 'odulinks', 'ovpnid'];
-    function ODULinkCtrl($scope, $mdDialog, $http, odulinks, ovpnid) {
+    ODULinkCtrl.$inject = ['$scope', '$mdDialog', '$http', 'odulinks', 'ovpnid', 'title'];
+    function ODULinkCtrl($scope, $mdDialog, $http, odulinks, ovpnid, title) {
       var self = this;
       self.selected = [];
       self.odulinks = odulinks;
+      self.rate = 0;
+      self.title = title;
 
-      self.exists = function (item, list) {
-        return list.indexOf(item) > -1;
-      };
-      self.toggle = function (item, list) {
-        var idx = list.indexOf(item);
-        if (idx > -1) {
-          list.splice(idx, 1);
-        }
-        else {
-          list.push(item);
-        }
-      };
-      self.exists = function (item, list) {
-        return list.indexOf(item) > -1;
-      };
-
-      self.isIndeterminate = function () {
-        return (self.selected.length !== 0 &&
-        self.selected.length !== self.odulinks.length);
-      };
-
-      self.isChecked = function () {
-        return self.selected.length === self.odulinks.length;
-      };
-
-      self.toggleAll = function () {
-        if (self.selected.length === self.odulinks.length) {
-          self.selected = [];
-        } else if (self.selected.length === 0 || self.selected.length > 0) {
-          self.selected = self.odulinks.slice(0);
+      self.changeCallBack = function (node, isSelected) {
+        if (isSelected) {
+          self.selected.push(node.name);
+        } else {
+          var index = self.selected.indexOf(node.name);
+          if (index > -1) {
+            self.selected.splice(index, 1);
+          }
         }
       };
+      console.log(title);
+
       self.submit = function (form) {
         $scope.submitted = true;
-        $promise = $http.post('/ovpns/odulinks', {odulinks: self.selected, id: ovpnid})
+        $promise = $http.post('/ovpns/odulinks', {odulinks: self.selected, rate: self.rate, id: ovpnid})
           .then(
             function (response) {
               if (response.status == '200') {
@@ -832,8 +859,8 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         });
     };
 
-    AddOVPNDialogCtrl.$inject = ['$scope', '$mdDialog', '$http', 'promiseTracker', '$timeout'];
-    function AddOVPNDialogCtrl($scope, $mdDialog, $http, promiseTracker, $timeout) {
+    AddOVPNDialogCtrl.$inject = ['$scope', '$mdDialog', '$http'];
+    function AddOVPNDialogCtrl($scope, $mdDialog, $http) {
 
       var self = this;
 
@@ -953,7 +980,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
         $promise = $http({
           method: 'DELETE',
           url: '/ovpns/odulinks/' + $scope.selected[0].ovpn_id,
-          data:  {links:names}
+          data: {links: $scope.selected3}
         }).then(function successCallback(response) {
           // this callback will be called asynchronously
           // when the response is available
@@ -2177,7 +2204,7 @@ angular.module('SDN', ['ngRoute', 'ngMessages', 'ngMaterial', 'md.data.table', '
   .controller('TestCtrl', ['$scope', function ($scope) {
     $scope.odulinks = [{'name': 'A', data: [1, 2, 3]}, {'name': 'B', data: [4, 5, 6]}, {'name': 'C', data: [7, 8, 9]}];
     $scope.selected = [];
-    $scope.check = function(item, list) {
+    $scope.check = function (item, list) {
       var idx = list.indexOf(item);
       if (idx > -1) {
         list.splice(idx, 1);

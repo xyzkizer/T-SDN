@@ -58,6 +58,9 @@
             <div class="md-toolbar-tools">
               <span>已选中 {{selected3.length}} 条 </span>
               <div flex></div>
+              <md-button ng-hide="selected3.length > 1" class="md-icon-button" ng-click="modres($event)">
+                <md-icon md-svg-src="assets/ic_edit_white_24px.svg">edit</md-icon>
+              </md-button>
               <md-button class="md-icon-button" ng-click="delLinkConfirm()">
                 <md-icon md-svg-src="assets/ic_delete_forever_white_24px.svg">delete</md-icon>
               </md-button>

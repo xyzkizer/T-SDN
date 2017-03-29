@@ -1,4 +1,4 @@
-<md-dialog flex="40" aria-label="添加资源">
+<md-dialog flex="40" aria-label="{{ ctrl.title }}">
   <form name="uForm" novalidate ng-submit="ctrl.submit(uForm)" role="form" ng-cloak>
 
     <md-toolbar>
@@ -17,18 +17,6 @@
           <input type="number" step="100" ng-model="ctrl.rate">
         </md-input-container>
       </div>
-      <div layout-gt-xs="row" flex style="height:300px; overflow: auto;">
-        <div ivh-treeview="ctrl.odulinks"
-             ivh-treeview-id-attribute="'name'"
-             ivh-treeview-label-attribute="'name'"
-             ivh-treeview-on-cb-change="ctrl.changeCallBack(ivhNode,ivhIsSelected)"
-             ivh-treeview-on-cb-change="" flex>
-          <script type="text/ng-template">
-            <tree-node></tree-node>
-          </script>
-        </div>
-      </div>
-
     </md-dialog-content>
     <md-dialog-actions>
       <md-button type="submit" aria-label="submit" class="md-primary">
