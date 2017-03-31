@@ -61,7 +61,7 @@
               <md-button ng-hide="selected3.length > 1" class="md-icon-button" ng-click="modres($event)">
                 <md-icon md-svg-src="assets/ic_edit_white_24px.svg">edit</md-icon>
               </md-button>
-              <md-button class="md-icon-button" ng-click="delLinkConfirm()">
+              <md-button class="md-icon-button" ng-click="delLinkConfirm($event)">
                 <md-icon md-svg-src="assets/ic_delete_forever_white_24px.svg">delete</md-icon>
               </md-button>
             </div>
@@ -84,9 +84,9 @@
               <tr md-row md-select="link" md-on-select="logItem" md-auto-select="true"
                   ng-repeat="link in links.data | filter: filter.search">
                 <td md-cell>{{link.name}}</td>
-                <td md-cell>{{link.remote_key.ne_id}}_{{link.link_key.link_type}}/{{link.remote_key.linkid}}</td>
-                <td md-cell>{{link.bandwidth}}</td>
-                <td md-cell>{{link.remain_bandwidth}}</td>
+                <td md-cell>{{link.remote_key_id}}</td>
+                <td md-cell>{{link.total_rate}}</td>
+                <td md-cell>{{link.remain_rate}}</td>
                 <td md-cell>{{link.signal_type}}</td>
                 <td md-cell>{{link.status}}</td>
               </tr>

@@ -40,7 +40,7 @@ class OVPNController < SDN
           :service_id => params[:id],
           :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S"),
           :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S"),
-          :content => %Q({ "ovpn_id": "#{params[:id]}", "link_key_list":[#{fordel.to_json}] }),
+          :content => %Q({ "ovpn_id": #{params[:id]}, "link_key_list":#{fordel.to_json} }),
           :state => 0
       )
       if @task.save
@@ -110,6 +110,7 @@ class OVPNController < SDN
         @task = Task.new(
             :task_type => "hw_add_ovpn_res",
             :user_id => session['user_id'],
+            :service_id => %Q(ovpn_#{params[:id]}),
             :local_id => DateTime.now.strftime("%Y%m%d%H%M%S%L"),
             :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S"),
             :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S"),
@@ -267,7 +268,7 @@ class OVPNController < SDN
           :local_id => DateTime.now.strftime("%Y%m%d%H%M%S%L")+rand(10).to_s,
           :effective_date => DateTime.now.strftime("%Y%m%d%H%M%S"),
           :effective_time => DateTime.now.strftime("%Y%m%d%H%M%S"),
-          :service_id => %Q(ovpn_#{params[:id]}),
+          :service_id => params[:id],
           :state => 0
       )
       if @task.save
@@ -296,13 +297,30 @@ class OVPNController < SDN
     ovpnlink = $redis.get(%Q(ovpn_#{params[:id]}.otnLink))
     if ovpnservice
       JSON.parse(ovpnservice).each do |uuid|
+        logger.debug $redis.get(uuid)
         ovpn[:services][:data] << JSON.parse($redis.get(uuid))
         ovpn[:services][:count] = ovpn[:services][:data].length
       end
     end
     if ovpnlink
-      JSON.parse(ovpnlink).each do |uuid|
-        ovpn[:links][:data] << JSON.parse($redis.get(uuid))
+      ports = JSON.parse(ovpnlink)
+      ports.each do |x|
+        remotekey = JSON.parse($redis.get(x))["remote_key_id"]
+        if ports.include? remotekey
+          ports.delete(remotekey)
+        end
+      end
+
+      ports.each do |uuid|
+        p = JSON.parse($redis.get(uuid))
+        p["remote_key_id"] = JSON.parse($redis.get(p["remote_key_id"]))["name"]
+        p["ovpn_list"].each do |x|
+          if x["ovpn_id"].to_s == params[:id].to_s
+            p["total_rate"] = x["total_bandwidth"]
+            p["remain_rate"] = x["ovpn_remain_bandwidth"]
+          end
+        end
+        ovpn[:links][:data] << p
         ovpn[:links][:count] = ovpn[:links][:data].length
       end
     end
